@@ -1,0 +1,3 @@
+import mlbgid
+
+mlbgid.UpdateTodayInSheet()

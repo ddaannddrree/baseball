@@ -1,0 +1,7 @@
+INFO 2014-06-24 13:50:26 MainThread log.init.23 
+Logging to c:\temp/install.py.log
+INFO 2014-06-24 13:50:26 MainThread loggingSetup.initializeLogging.7 
+INFO 2014-06-24 13:50:26 MainThread loggingSetup.initializeLogging.8 Starting bbos!
+INFO 2014-06-24 13:50:26 MainThread installPythonLibs.main.10 Starting bbos install!
+INFO 2014-06-24 13:50:26 MainThread _7ZipController.unzip.13 running:/home/eddie7/code/bbos/tools/7-Zip/7za.exe x -y -o/usr/lib/python2.7/dist-packages /usr/lib/python2.7/dist-packages/sqlalchemy.7z
+INFO 2014-06-24 13:50:26 MainThread _7ZipController.unzip.13 running:/home/eddie7/code/bbos/tools/7-Zip/7za.exe x -y -o/usr/lib/python2.7/dist-packages /usr/lib/python2.7/dist-packages/pymysql.7z

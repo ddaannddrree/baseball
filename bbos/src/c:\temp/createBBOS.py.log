@@ -1,0 +1,6 @@
+INFO 2014-06-24 13:56:47 MainThread log.init.23 
+Logging to c:\temp/createBBOS.py.log
+INFO 2014-06-24 13:56:47 MainThread loggingSetup.initializeLogging.7 
+INFO 2014-06-24 13:56:47 MainThread loggingSetup.initializeLogging.8 Starting bbos!
+DEBUG 2014-06-24 13:56:47 MainThread db.run.15 running:"/mysql.exe"  -h localhost -P 3306 -u bbos -pbbos -e "source ..\sql\createGamedaySchema.sql"
+INFO 2014-06-24 13:56:47 MainThread createGamedaySchema.<module>.25 

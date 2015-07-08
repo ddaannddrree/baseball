@@ -1,0 +1,79 @@
+first, how to record the following info:
+
+(wins so far per team) is a cost
+
+predicted #wins matters (a lot)
+
+o | then, there's the question of whether aves in wins are higher or not than OPS in losses, so we want to have the game result!
+o | 
+o | 
+o | 
+
+BA-RISP -- also 
+
+
+Hitting stats: 
+OPS, (TB/AB) + (H+BB+HBP / (AB + BB + SF + HBP)  || H,TB,BB,SF  we have from before, AB (easy, in batter list ) , HBP (easy, in batter list)
+BA-RISP, [ have to get it from inning-all, and have to use the runner id field, and the event ] 
+SB, right from month 3
+doubles+triples, [ easy peasy, from the batter list ] 
+RBI/9 , (RBI are in the batter list, can get batter innings played from the notifications file)
+
+Pitching stats: 
+Holds, right from month 3
+WHIP, bb, h, outs all in pitcher line
+BAA, [yuck, have to do this from the innings file?]
+K, right from month 3
+IP, just from outs
+
+
+------------------------------------------------------
+for each game, 
+ for each batter, 
+  create a batter dict. 
+	 from boxscore json, create AB, H, 2B, 3B, HR, TB, BB, HBP, SF, SB, RB, TeamWin
+   from inning-all XML, get BA-RISP
+	 add to batters
+ for each pitcher, 
+  create a pitcher dict
+	  from boxscore json, create Holds, W, H, outs, k, TeamWin, 
+		from inning-all XML, get H, event, AB (e.g. atbats without any of the thigns below) [ requires gathering event info, I think)
+
+
+NIXING ATBATS
+He receives a base on balls (BB).[2]
+He is hit by a pitch (HBP).
+He hits a sacrifice fly or a sacrifice hit (also known as sacrifice bunt).
+He is awarded first base due to interference or obstruction, usually by the catcher.
+The inning ends while he is still at bat (due to the third out being made by a runner caught stealing, for example). In this case, the batter will come to bat again in the next inning, though the count will be reset to no balls and no strikes.
+He is replaced by another hitter before his at bat is completed (unless he is replaced with two strikes and his replacement completes a strikeout).
+   
+
+------------------------------------------------------
+
+for predictions, take baseball prospectus, use for 50% of projections as best we can (e.g. linear
+regression from stats we know to stats we want) [ wait -- baseball prospectus has full-season
+projections, so have to subtract to get rest of year and /3]  Ugh. 
+
+Other 50% is based on player stats over last 10 months of play, only counting wins. 
+
+------------------------------------------------------
+
+[ ] should bail early if the game isn't yet over!
+
+follow model from before
+
+batters:
+store player id, player name, team-code, AB, TB, H, BB, HBP, SF, H-RISP, AB-RISP, SB, D, T, RBI  into DB
+
+pitchers: 
+store player id, player name, team-code, Holds, BB, H, IP, H, AB, K, Outs  into DB
+
+
+In stats mode, ignore the teams, just shove them into the DB. In fact, just put all the players from
+each XML file into the DB.  Then, utilize the DB in the summary parts for each WB team.   
+
+
+
+
+

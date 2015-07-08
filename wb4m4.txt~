@@ -1,0 +1,17 @@
+first, how to record the following info:
+
+
+
+Hitting stats: 
+OPS, (TB/AB) + (H+BB+HBP / (AB + BB + SF + HBP)  || H,TB,BB,SF  we have from before, AB (easy, in batter list ) , HBP (easy, in batter list)
+BA-RISP, [ have to get it from inning-all, and have to use the runner id field, and the event ] 
+SB, right from month 3
+doubles+triples, [ easy peasy, from the batter list ] 
+RBI/9 , (RBI are in the batter list, can get batter innings played from the notifications file)
+
+Pitching stats: 
+Holds, right from month 3
+WHIP, bb, h, outs all in pitcher line
+BAA, [yuck, have to do this from the innings file?]
+K, right from month 3
+IP, just from outs

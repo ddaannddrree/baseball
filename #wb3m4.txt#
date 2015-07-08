@@ -1,0 +1,48 @@
+We're going to want to build up the pitcher/hitter/ID/WB_TEAM table ahead of time and put this into a
+CSV.  Then we can save data only for these players.   
+
+
+
+database table to build up is:
+date, player, game-key, pitcherp, ab, ip, W, SV, QS, DP, ER, H, HR, BB, ASS, SB
+
+logic should be to find the last day in the dB and re-run that day, replacing any entries for any players that day. 
+
+logic of that should match game-key + date & player-id
+
+I should publish the full CSV file of the above, plus then publish the following:
+
+Overall: stats table page:   
+
+longest streak
+Team		 W SV QS DP ER H HR BB ASS SB Names
+
+Period Points
+Team	  W SV QS DP ER H HR BB ASS SB Names  Total
+
+Link_to_full_csv
+
+Make team names clickable:
+TeamPage: 
+
+
+Asterisks are longest active streaks:
+
+Player:				  W S   w*   s*
+Pitching Staff:
+
+Player:					  HR SB hr*  sb*
+Batting Staff:
+
+Pitcher:				  QS ER=0 DP   qs* er*  dp*
+
+Batter:							   H BB ASS h* bb* ass*
+
+
+Then, the team stats are longest streaks of HR/SB/W/SV by team, individual stats are the others, summed for longest streak
+
+
+
+
+
+
