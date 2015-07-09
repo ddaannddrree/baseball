@@ -223,11 +223,10 @@ def getVictoryPoints(ts):
    #return a list of dictonaries with the season-point scores
    #Total Bases, Runs, SB, SF + SH, BB; 
    #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-   fnames_for_scoring = ['team','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so','total']
+   fnames_for_scoring = ['team','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses']
+                         
    tsc = copy.deepcopy(ts)
    vsc = []
-   for tsii in tsc:
-      tsii['total'] = tsii['salary']
    for lab  in fnames_for_scoring[1:len(fnames_for_scoring)-1]:
       nteams = len(tsc)
       for tt in range(0,nteams):
@@ -254,7 +253,7 @@ def getID(player):
    except:
       print "error -- can't find player " + str(player)
 
-def makeTeamDict(tname,hit_teams,pit_teams,offset,m1,m2):
+def makeTeamDict(tname,hit_teams,pit_teams,offset,m1,m2,m3):
    dd = {}
    dd['team_name'] = tname
    dd['hit_teams'] = hit_teams
@@ -275,26 +274,63 @@ def extractTeam(team,label,ts):
 
 def getFilledTeams(date1,date2):
    ts = getTeams()
-   ress = CompileRangeGames(date1,date2)
+   (press,bress) = CompileRangeGames(date1,date2)
    for t in ts:
       #Total Bases, Runs, SB, SF + SH, BB; 
       #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-      mysum=lambda teams,label:sum([x[label] for x in ress if x['team'] in teams])
-      print t
-      t['tb'] = mysum(t['hit_teams'],'tb')
-      t['runs'] = mysum(t['hit_teams'],'runs_for')
-      t['sb'] = mysum(t['hit_teams'],'sb')
-      t['sacsf'] = mysum(t['hit_teams'],'sacsf')
-      t['bb'] = mysum(t['hit_teams'],'bb')
-      t['qs'] = mysum(t['pit_teams'],'qs')
-      t['runs-a'] = -mysum(t['pit_teams'],'runs_against')
-      t['saves'] = mysum(t['pit_teams'],'saves')
-      t['holds'] = mysum(t['pit_teams'],'holds')
-      t['so'] = mysum(t['pit_teams'],'so')
-   for r in ress:
-      r['batting_team'] = extractTeam(r['team'],'hit_teams',ts)
-      r['pitching_team'] = extractTeam(r['team'],'pit_teams',ts)
-   return ts,ress
+      pits = [p['id'] for p in t['pitchers']]
+      bats = [b['id'] for b in t['batters']]
+      mysum=lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players])
+      mywinsum =lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players and x['wasawin']])
+      hitlabels = [x for x in bress[0].keys() if x not in ['id','wasawin']]
+      pitlabels = [x for x in press[0].keys() if x not in ['id','wasawin']]
+      hitstats = {}
+      pitstats = {}
+      for label in hitlabels:
+         hitstats[label] = mywinsum(bats,label,bress)
+         #         hitstats['all_'+label] = mysum(bats,label,bress)
+      for label in pitlabels:
+         pitstats[label] = mywinsum(pits,label,press)
+         #        pitstats['all_'+label] = mysum(bats,label,bress)
+      t['pitstats'] = pitstats
+      t['hitstats'] = hitstats
+      #Now make the actual stats
+      hs = hitstats
+      ps = pitstats
+      hs['tb'] = hs['hits']+hs['doubles']+hs['triples']*2+hs['hr']*3
+      if hs['ab'] == 0:
+         t['slg'] = 0
+      else:
+         t['slg'] = (float(hs['tb']/float(hs['ab'])))
+      if (hs['ab']+hs['bb']+hs['sf']+hs['hbp']) == 0:
+         t['obp'] = 0
+      else:
+         t['obp'] = float(hs['hits']+hs['bb']+hs['hbp'])/float(hs['ab']+hs['bb']+hs['sf']+hs['hbp'])
+      t['ops'] = t['slg'] + t['obp']
+      if (hs['abrisp']) == 0:
+         t['barisp'] = 0
+      else:
+         t['barisp'] = float(hs['hrisp'])/float(hs['abrisp'])
+      t['sb'] = hs['sb']
+      t['dpt'] = hs['doubles']+hs['triples']
+      if (hs['ab'] == 0):
+         t['rbiab'] = 0
+      else:
+         t['rbiab'] = float(hs['rbi'])/float(hs['ab'])
+      t['holds'] = ps['holds']
+      t['ip'] = float(ps['outs'])/3.0
+      if t['ip'] == 0:
+         t['whip'] = -30
+      else:
+         t['whip'] = -float(ps['bb']+ps['hits'])/(float(t['ip']))
+      if ps['ab'] == 0:
+         t['baa'] = 1.0
+      else:
+         t['baa'] = -float(ps['hits'])/float(ps['ab'])
+      t['k'] = float(ps['k'])
+                                              
+                  
+   return ts,press,bress
 
 
 def getTeamsJune():
@@ -329,6 +365,10 @@ def getTeamsMay():
 def getTeams():
     team_names = ['Detroit Tednugents','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
 
+    losses = [664,569,569, 600, 571, 636, 609, 575]
+    m1 = [4,5.5,5.5,3,  1,  7,  2,  8]
+    m2 = [4,  1,  4,2,  6,7.5,  4,7.5, ]
+    m3 = [3,  7,5.5,8,  2,  1,5.5,  4, ]
     players = pickle.load(open('players_wb4m4.p','rb'))
 
     pitchers = [];
@@ -363,7 +403,7 @@ def getTeams():
        for p in pitchers[i]:
           player = players[str(p)]
           fps.append({'name':player['name'],'id':p})
-       teams.append({'team_name':team_name, 'batters':fbs, 'pitchers':fps})
+       teams.append({'team_name':team_name, 'batters':fbs, 'pitchers':fps, 'losses':losses[i], 'm1':m1[i],'m2':m2[i],'m3':m3[i],'mtotal':m1[i]+m2[i]+m3[i]})
        i=i+1
     return teams
 
@@ -445,6 +485,74 @@ def GetGameBoxScoreJson(gameid):
    except:                                      # (this only is the case for some extra 2012 Marlins gameids as far as I know), returns none
       return None                               #
 
+def makePitcherDict(pp,p_atbats,wasawin):
+   pit = {}
+   pit['id'] = pp['id']
+   pit['wasawin'] = wasawin
+   if 'note' in pp.keys() and '(H' in pp['note']:
+      pit['holds'] = 1
+   else:
+      pit['holds'] = 0
+   pit['bb'] = pp['bb']
+   pit['ab'] = atbatsFromAtBats(pp['id'],p_atbats)
+   pit['hits'] = pp['h']
+   pit['k'] = pp['so']
+   pit['outs'] = pp['out']
+   return pit
+   
+def makeBatterDict(bb,b_abrisp,wasawin):
+   bat = {}
+   bat['id'] = bb['id']
+   bat['wasawin'] = wasawin
+   bat['hits'] = bb['h']
+   bat['doubles'] = bb['d']
+   bat['triples'] = bb['t']
+   bat['hr'] = bb['hr']
+   bat['bb'] = bb['bb']
+   bat['hbp'] = bb['hbp']
+   bat['ab'] = bb['ab']
+   bat['sf'] = bb['sf']
+   bat['hrisp'] = hitsFromAtBats(bb['id'],b_abrisp)
+   bat['abrisp'] = atbatsFromAtBats(bb['id'],b_abrisp)
+   bat['sb'] = bb['sb']
+   bat['rbi'] = bb['rbi']
+   return bat
+
+def ExtractPlayerInfo(gg,p_atbats,b_abrisp):
+   batters = []
+   pitchers = []
+   home_win = gg['data']['boxscore']['linescore']['home_team_runs'] > gg['data']['boxscore']['linescore']['away_team_runs']
+   if (gg['data']['boxscore']['status_ind'] == 'F'):
+      bats = gg['data']['boxscore']['batting']
+      bh = [b for b in bats if b['team_flag']=='home']
+      ba = [b for b in bats if b['team_flag']=='away']
+      hbats = bh[0]['batter']
+      abats =ba[0]['batter']
+
+      h_batters = [makeBatterDict(bb,b_abrisp,home_win) for bb in hbats]
+      a_batters = [makeBatterDict(bb,b_abrisp,not home_win) for bb in abats]
+
+      batters.extend(h_batters)
+      batters.extend(a_batters)
+      
+      pits = gg['data']['boxscore']['pitching']
+      ph = [p for p in pits if p['team_flag']=='home']
+      pa = [p for p in pits if p['team_flag']=='away']
+      hpits = ph[0]['pitcher']
+      if type(hpits) is dict:
+         hpits= [hpits]
+      apits = pa[0]['pitcher']
+      if type(apits) is dict:
+         apits= [apits]
+
+      h_pitchers = [makePitcherDict(pp,p_atbats,home_win) for pp in hpits]
+      a_pitchers = [makePitcherDict(pp,p_atbats,not home_win) for pp in apits]
+
+      pitchers.extend(h_pitchers)
+      pitchers.extend(a_pitchers)
+
+
+   return (pitchers,batters)
 
 #
 def ExtractTeamRecords(dd):
@@ -835,7 +943,7 @@ def printDictListCSV(ff, dlist, cols=None):
    ff.flush()
 
 
-def OutputTablesToFile(filename,ts,tsToday,ress):
+def OutputTablesToFile(filename,ts,bress,press):
    tls = ts
    vps = getVictoryPoints(ts)
    svps = sorted(vps,key=lambda k: k['total'],reverse=True)
@@ -844,36 +952,38 @@ def OutputTablesToFile(filename,ts,tsToday,ress):
 
    ii = 0
    for svi in svps:
-      m3s = scoreSingle([x['total'] for x in svps],ii)      
-      svi['through_three'] = svi['mtotal'] + m3s
-      svi['m3'] = m3s
+      m4s = scoreSingle([x['total'] for x in svps],ii)      
+      svi['through_four'] = svi['mtotal'] + m4s
+      svi['m4'] = m4s
       ii = ii+1
    ff = open(filename,'wb')
    #   ff.write('teams<br>')
    #   printDictList(ff,sts,['team_name','runs_for_team','runs_against_team','error_team'])
    #   ff.flush()
    ff.write('<BR><BR>Stats<BR>')
-   printDictList(ff,sts,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so','salary'])
+   printDictList(ff,sts,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses'])
+                         
    ff.flush()
    ff.write('<BR><BR>Points<BR>')
-   printDictList(ff,svps,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so','total'])
-   ff.write('<BR><BR>Today Stats<BR>')
-   printDictList(ff,stsToday,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so'])
+   printDictList(ff,svps,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses','total'])
+
+#   ff.write('<BR><BR>Today Stats<BR>')
+#   printDictList(ff,stsToday,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so'])
 
    ff.write('<BR><BR>Season scores As of Today:<BR>')
 
    ssvps = sorted(svps,key=lambda k: k['through_three'],reverse=True)
-   printDictList(ff,ssvps,['team_name','m1','m2','m3','through_three'])
+   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','through_four'])
    ff.write('<BR><BR>')
    ff.write("<a href='all.csv'> all.csv </a><BR><BR>")
 
    ff.write(str(datetime.now()))
 
    ff.close()
-   ff = open('/home/eddie7/code/wb4m3/all.csv','wb')
-   printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
+#   ff = open('/home/eddie7/code/wb4m3/all.csv','wb')
+#   printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
 #   printDictListCSV(ff,ress)
-   ff.close()
+#   ff.close()
 
 
 def d2s(d):
@@ -883,12 +993,12 @@ def d2s(d):
 def DoTheDay():
    today = datetime.now()
    today = today.date()
-   start_date = date(2015,1,1)
-   end_date = date(2015,7,1)
+   start_date = date(2015,7,3)
+   end_date = date(2015,7,31)
    end_date = min(end_date,today)
-   ts,ress = getFilledTeams(d2s(start_date),d2s(end_date))
-   tsToday,rignore = getFilledTeams(d2s(end_date),d2s(end_date))
-   OutputTablesToFile('/home/eddie7/code/wb4m3/stats_wb4m3.html',ts,tsToday,ress)
+   ts,press,bress = getFilledTeams(d2s(start_date),d2s(end_date))
+#   tsToday,rignore = getFilledTeams(d2s(end_date),d2s(end_date))
+   OutputTablesToFile('/home/eddie7/code/wb4m4/stats_wb4m4.html',ts,press,bress)
 
 def ExtractPlayers(gg,pdict):
    try:
@@ -902,6 +1012,42 @@ def ExtractPlayers(gg,pdict):
       subd = {'id':pd['id'], 'first':pd['first'],'last':pd['last'],'boxname':pd['boxname'], 'name':pd['first']+' '+pd['last']}
       pdict[pd['id']] = subd
       #pdict[subd['name']] = subd
+
+def AtBatHasRISP(ab):
+   runners = ab.findall('runner')
+   if len(runners) < 1:
+      return False
+   risps = [r for r in runners if r.attrib['start'] == '2B' or r.attrib['start'] == '3B']
+   return len(risps) > 0
+
+def ExtractPitcherABinfo(gg):
+   try:
+      root= gg.getroot()
+   except:
+      return []
+   atbats = [atbat for atbat in root.iter('atbat')]
+   pitcher_info = [{'id':x.attrib['pitcher'],'event':x.attrib['event']} for x in atbats]
+   return pitcher_info
+
+def hitsFromAtBats(player,atbats):
+   hitstrings = ['Single','Double','Triple','Home Run']
+   hitlist = [x for x in atbats if player==x['id'] and x['event'] in hitstrings]
+   return len(hitlist)
+
+def atbatsFromAtBats(player,atbats):
+   notab = ['Walk','Catcher Interference','Sac Fly','Hit by Pitch','Sac Bunt','Sac Fly DP','Runner Out']
+   ablist = [x for x in atbats if player==x['id'] and x['event'] not in notab]
+   return len(ablist)
+
+def ExtractBatterRISPInfo(gg):
+   try:
+      root= gg.getroot()
+   except:
+      return []
+   atbats = [atbat for atbat in root.iter('atbat')]
+   abrisp = [x for x in atbats if AtBatHasRISP(x)]
+   batter_info = [{'id':x.attrib['batter'],'event':x.attrib['event']} for x in abrisp]
+   return batter_info
 
 def ExtractEvents(gg):
    try:
@@ -933,15 +1079,22 @@ def GetDayEvents(date):
    return c
 
 def CompileDayGames(date):
-   res = []
-   badres = []
+   batters = []
+   pitchers = []
    gameids = DateGames(date)
    for g in gameids:
       print 'Doing game ' + g
-      dinfo = ExtractTeamRecords(GetGameBoxScoreJson(g))
-      if (len(dinfo) >0):
-         res.extend(dinfo)
-   return res
+      jsonbox = GetGameBoxScoreJson(g)
+      innings_all = GetGame(g)
+      p_atbats = ExtractPitcherABinfo(innings_all)
+      b_abrisp = ExtractBatterRISPInfo(innings_all)
+
+      (ps,bs) = ExtractPlayerInfo(jsonbox,p_atbats,b_abrisp)
+      if (len(ps) >0):
+         pitchers.extend(ps)
+      if (len(bs) >0):
+         batters.extend(bs)
+   return (pitchers,batters)
 
 def DayGamesToDB(date):
    gameids = DateGames(date)
@@ -995,14 +1148,23 @@ def GetTheEvents(date1,date2):
    
 
 def CompileRangeGames(date1,date2):
-   res = []
-   badres = []
+   pres = []
+   bres = []
+   pdate1 = datetime.strptime(date1,'%Y_%m_%d').date()
+   pdate2 = datetime.strptime(date2,'%Y_%m_%d').date()
+   if pdate2 < pdate1:
+      raise Exception('date2 must be at or after date1')
+   oneday = timedelta(1)
+   thedate = pdate1
    while thedate <=pdate2:
       print 'Doing games for date ' + str(thedate)
-      thetup = CompileDayGames(thedate.strftime('%Y_%m_%d'))
-      res.extend(thetup)
+      (ps,bs) = CompileDayGames(thedate.strftime('%Y_%m_%d'))
+      if len(ps) > 0:
+         pres.extend(ps)
+      if len(bs) > 0:
+         bres.extend(bs)
       thedate = thedate+oneday
-   return res
+   return (pres,bres)
 
 def PrintMonth():
     print 'Rangers,Reds,Rockies,Rays,Tigers,Brewers,Orioles,Indians,Giants,Braves,Pirates,BlueJays,RedSox,Mets,Cardinals,Yankees,'
