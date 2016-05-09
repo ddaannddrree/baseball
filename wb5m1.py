@@ -21,11 +21,11 @@ import json
 import numpy
 import pdb
 
-db= MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4')
-cursor = db.cursor()
+#db= MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4')
+#cursor = db.cursor()
 
-dbd = MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4',cursorclass=MySQLdb.cursors.DictCursor)
-cursord = dbd.cursor()
+#dbd = MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4',cursorclass=MySQLdb.cursors.DictCursor)
+#cursord = dbd.cursor()
 
 def hist(s):
    d = {}
@@ -223,8 +223,8 @@ def getVictoryPoints(ts):
    #return a list of dictonaries with the season-point scores
    #Total Bases, Runs, SB, SF + SH, BB; 
    #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-   fnames_for_scoring = ['team','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses','total']
-                         
+   fnames_for_scoring = ['team','hr','rbi','sb','hits','so','w','sv','k','ebh','sba','total']
+
    tsc = copy.deepcopy(ts)
    vsc = []
    for tsii in tsc:
@@ -260,10 +260,6 @@ def makeTeamDict(tname,hit_teams,pit_teams,offset,m1,m2,m3):
    dd['team_name'] = tname
    dd['hit_teams'] = hit_teams
    dd['pit_teams'] = pit_teams
-   dd['salary'] = offset
-   dd['m1'] = m1
-   dd['m2'] = m2
-   dd['mtotal'] = m1+m2
    return dd
 
 def extractTeam(team,label,ts):
@@ -276,10 +272,10 @@ def extractTeam(team,label,ts):
 
 def getFilledTeams(date1,date2):
    ts = getTeams()
-   (press,bress) = CompileRangeGames(date1,date2)
+   (press,bress) = CompileRangeGames(date1,date2) 
    for t in ts:
-      #Total Bases, Runs, SB, SF + SH, BB; 
-      #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
+      #OLD Total Bases, Runs, SB, SF + SH, BB; 
+      #OLD Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
       pits = [p['id'] for p in t['pitchers']]
       bats = [b['id'] for b in t['batters']]
       mysum=lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players])
@@ -289,56 +285,27 @@ def getFilledTeams(date1,date2):
       hitstats = {}
       pitstats = {}
       for label in hitlabels:
-         hitstats[label] = mywinsum(bats,label,bress)
+         hitstats[label] = round(t['offsets'][label],3) + mysum(bats,label,bress)
          #         hitstats['all_'+label] = mysum(bats,label,bress)
       for label in pitlabels:
-         pitstats[label] = mywinsum(pits,label,press)
+         pitstats[label] = round(t['offsets'][label],3) + mysum(pits,label,press)
          #        pitstats['all_'+label] = mysum(bats,label,bress)
       t['pitstats'] = pitstats
       t['hitstats'] = hitstats
       #Now make the actual stats
       hs = hitstats
       ps = pitstats
-      hs['tb'] = hs['hits']+hs['doubles']+hs['triples']*2+hs['hr']*3
-      if hs['ab'] == 0:
-         t['slg'] = 0
-      else:
-         t['slg'] = (float(hs['tb']/float(hs['ab'])))
-      if (hs['ab']+hs['bb']+hs['sf']+hs['hbp']) == 0:
-         t['obp'] = 0
-      else:
-         t['obp'] = float(hs['hits']+hs['bb']+hs['hbp'])/float(hs['ab']+hs['bb']+hs['sf']+hs['hbp'])
-      t['ops'] = round(t['slg'] + t['obp'],5)
-      if (hs['abrisp']) == 0:
-         t['barisp'] = 0
-      else:
-         t['barisp'] = round(float(hs['hrisp'])/float(hs['abrisp']),5)
-      t['sb'] = hs['sb']
-      t['dpt'] = hs['doubles']+hs['triples']
-      if (hs['ab'] == 0):
-         t['rbiab'] = 0
-      else:
-         t['rbiab'] = round(float(hs['rbi'])/float(hs['ab']),5)
-      t['holds'] = ps['holds']
-      t['ip'] = round(float(ps['outs'])/3.0,3)
-      if t['ip'] == 0:
-         t['whip'] = -30
-      else:
-         t['whip'] = -round(float(ps['bb']+ps['hits'])/(float(t['ip'])),5)
-      if ps['ab'] == 0:
-         t['baa'] = 1.0
-      else:
-         t['baa'] = -round(float(ps['hits'])/float(ps['ab']),5)
-      t['k'] = float(ps['k'])
-                                              
-                  
+      for label in hs.keys():
+         t[label] = hs[label]
+      for label in ps.keys():
+         t[label] = ps[label]
    return ts,press,bress
 
 
 def printFilesForTeams(ts,press,bress):
    for t in ts:
-      bff = open('/home/eddie7/code/wb4m4/' + t['team_name'].replace(" ","") + '_batters.csv','wb')
-      pff = open('/home/eddie7/code/wb4m4/' + t['team_name'].replace(" ","") + '_pitchers.csv','wb')
+      bff = open('/home/eddie7/code/wb5m1/' + t['team_name'].replace(" ","") + '_batters.csv','wb')
+      pff = open('/home/eddie7/code/wb5m1/' + t['team_name'].replace(" ","") + '_pitchers.csv','wb')
       bre = getBattingRawEvents(bress,t)
       pre = getPitchingRawEvents(press,t)
       printDictListCSV(bff,bre)
@@ -346,20 +313,22 @@ def printFilesForTeams(ts,press,bress):
       bff.close()
       pff.close()
 
-def getPitchingRawEvents(press, t, onlywin=True):
+def getPitchingRawEvents(press, t):
    pits = [p['id'] for p in t['pitchers']]
-   actives = [x for x in press if int(x['id']) in pits and (x['wasawin'] or not onlywin)]
-   players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))   
+   actives = [x for x in press if int(x['id']) in pits]
+   #   players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))   
+   players = loadCSVDict('/home/eddie7/code/players2016.csv')
    for a in actives:
-      a['player_name'] = players[a['id']]['name']
+      a['player_name'] = players[a['id']]['mlb_name']
    return actives
       
-def getBattingRawEvents(bress, t, onlywin=True):
+def getBattingRawEvents(bress, t, onlywin=False):
    bats = [b['id'] for b in t['batters']]
-   actives = [x for x in bress if int(x['id']) in bats and (x['wasawin'] or not onlywin)]
-   players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))      
+   actives = [x for x in bress if int(x['id']) in bats ]
+   #players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))      
+   players = loadCSVDict('/home/eddie7/code/players2016.csv')
    for a in actives:
-      a['player_name'] = players[a['id']]['name']
+      a['player_name'] = players[a['id']]['mlb_name']
    return actives
    
 def getTeamsJune():
@@ -392,34 +361,41 @@ def getTeamsMay():
    return ts
 
 def getTeams():
-    team_names = ['Detroit Tednugents','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
+    team_names = ['Drumpfallacious','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
 
-    losses = [664,569,569, 600, 571, 636, 609, 575]
-    m1 = [4,5.5,5.5,3,  1,  7,  2,  8]
-    m2 = [4,  1,  4,2,  6,7.5,  4,7.5, ]
-    m3 = [3,  7,5.5,8,  2,  1,5.5,  4, ]
-    players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))
+    offsets = [{'hr':-1.75872093,'rbi':-7.034883721,'sb':-7.034883721,'hits':-10.55232558,'so':-7.034883721,'w':-2.155523256,'sv':-4.311046512,'k':-17.24418605,'ebh':-8.622093024,'sba':-2.155523256}]
+    offsets.append({'hr':-7.98255814,'rbi':-31.93023256,'sb':-31.93023256,'hits':-47.89534884,'so':-31.93023256,'w':-3.568313954,'sv':-7.136627907,'k':-28.54651163,'ebh':-14.27325581,'sba':-3.568313954})#brent
+    offsets.append({'hr':-6.159883721,'rbi':-24.63953488,'sb':-24.63953488,'hits':-36.95930233,'so':-24.63953488,'w':-3.908430233,'sv':-7.816860465,'k':-31.26744186,'ebh':-15.63372093,'sba':-3.908430233})#portlandia
+    offsets.append({'hr':-6.081395349,'rbi':-24.3255814,'sb':-24.3255814,'hits':-36.48837209,'so':-24.3255814,'w':-4.034883721,'sv':-8.069767442,'k':-32.27906977,'ebh':-16.13953488,'sba':-4.034883721})#rube
+    offsets.append({'hr':-9.220930232,'rbi':-36.88372093,'sb':-36.88372093,'hits':-55.32558139,'so':-36.88372093,'w':-3.989825581,'sv':-7.979651163,'k':-31.91860465,'ebh':-15.95930233,'sba':-3.989825581})#paly
+    offsets.append({'hr':-4.957848837,'rbi':-19.83139535,'sb':-19.83139535,'hits':-29.74709302,'so':-19.83139535,'w':-2.209302326,'sv':-4.418604652,'k':-17.67441861,'ebh':-8.837209303,'sba':-2.209302326})#watson
+    offsets.append({'hr':-3.645348837,'rbi':-14.58139535,'sb':-14.58139535,'hits':-21.87209302,'so':-14.58139535,'w':-1.113372093,'sv':-2.226744186,'k':-8.906976744,'ebh':-4.453488372,'sba':-1.113372093})#bvb
+    offsets.append({'hr':-3.351744186,'rbi':-13.40697675,'sb':-13.40697675,'hits':-20.11046512,'so':-13.40697675,'w':-1.556686047,'sv':-3.113372093,'k':-12.45348837,'ebh':-6.226744186,'sba':-1.556686047})#Nice
+
+    #    players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))
+    players = loadCSVDict('/home/eddie7/code/players2016.csv')
+
 
     pitchers = [];
-    pitchers.append([519293,543243,477132,431148,447714,519267])#brad
-    pitchers.append([502042,453329,489265,453562,544931,425844])#brent
-    pitchers.append([434628,450212,429717,502188,453286,430935])#scott
-    pitchers.append([446372,434538,425657,519242,517593,456501])#John
-    pitchers.append([518813,471911,453343,461833,519455,518886])#jesse
-    pitchers.append([518516,434378,453178,502202,571666,605476])#dave
-    pitchers.append([453265,433587,518774,547888,452657,448306])#martin
-    pitchers.append([572971,543037,547973,594798,605228,456034])#tom
+    pitchers.append([628317,571704,592127,474521,519151,519326])#brad
+    pitchers.append([532077, 453562, 592836, 547888, 608379, 543606])#brent
+    pitchers.append([571927, 572971, 571666, 544727, 518774, 476454])#scott
+    pitchers.append([444468, 605228, 517593, 446372, 573186, 502042])#John
+    pitchers.append([543243, 594798, 605400, 572096, 501381, 592102])#jesse
+    pitchers.append([592789, 622663, 543883, 543037, 517008, 628452])#dave
+    pitchers.append([648737, 595191, 605135, 502026, 493200, 605541])#martin
+    pitchers.append([543045, 607074, 605452, 573109, 592826, 605232])#tom
 
 
     batters = [];
-    batters.append([460026,452252,543401,133380,593428,453568,545361,519184,457803])#brad
-    batters.append([457763,502671,622110,592178,493351,488726,430945,571740,624577])#brent
-    batters.append([519390,519203,514888,453943,425509,502110,458731,456715,572821])#scott
-    batters.append([431145,458015,450314,571448,543063,461314,542303,547180,592518])#john
-    batters.append([452095,408236,429664,518626,408314,457705,443558,457708,405395])#jesse
-    batters.append([501647,425902,543829,134181,453064,460075,460576,493316,467055])#dave
-    batters.append([518960,408234,543281,630111,434670,605141,466320,471865,120074])#martin
-    batters.append([435263,547989,605412,121347,543760,516782,430832,453056,429665])#tom
+    batters.append([656941,  666560,  543685,  608369,  596748,  571740,  572039,  572073,  607223])#brad
+    batters.append([457763,502671,608365,592518,543063,545361,542993,519317,570256])#brent
+    batters.append([623143,519203,605412,453943,621043,624577,493316,453568,572821])#scott
+    batters.append([518595,543333,543939,518626,596115,499624,547180,571788,571448])#john
+    batters.append([521692,408234,543829,592178,516770,592626,457705,608336,546318])#jesse
+    batters.append([596119,519390,514888,596019,572122,543807,621439,501981,543068])#dave
+    batters.append([543510,500208,571697,622110,606466,444482,605141,519306,594777])#martin
+    batters.append([592663,547989,596059,493343,593428,516782,607680,624424,593934])#tom
 
     teams = []
     i=0
@@ -428,11 +404,11 @@ def getTeams():
        fps = [];
        for b in batters[i]:
           player = players[str(b)]
-          fbs.append({'name':player['name'],'id':b})
+          fbs.append({'name':player['mlb_name'],'id':b})
        for p in pitchers[i]:
           player = players[str(p)]
-          fps.append({'name':player['name'],'id':p})
-       teams.append({'team_name':team_name, 'batters':fbs, 'pitchers':fps, 'losses':losses[i], 'm1':m1[i],'m2':m2[i],'m3':m3[i],'mtotal':m1[i]+m2[i]+m3[i]})
+          fps.append({'name':player['mlb_name'],'id':p})
+       teams.append({'team_name':team_name, 'batters':fbs, 'pitchers':fps, 'offsets':offsets[i]})
        i=i+1
     return teams
 
@@ -515,55 +491,64 @@ def GetGameBoxScoreJson(gameid):
       print 'huh?'
       return None                               #
 
-def makePitcherDict(pp,p_atbats,wasawin,gid):
+def loadCSV(filename):
+    with open(filename,'rU') as csvfile:
+        reader = csv.DictReader(csvfile)
+        kept2 = [row for row in reader]    
+    return kept2
+
+
+def loadCSVDict(filename):
+   the_list = loadCSV(filename)
+   my_dict = {x['mlb_id']:x for x in the_list}
+   return my_dict
+
+def infoFromAtBats(id,thing,abs):
+   matches = [x[thing] for x in abs if x['id']==id]
+   return sum(matches)
+
+def makePitcherDict(pp,p_atbats,gid):
    pit = {}
    pit['id'] = pp['id']
-   pit['wasawin'] = wasawin
-   if 'note' in pp.keys() and '(H' in pp['note']:
-      pit['holds'] = 1
+   if 'save' in pp.keys():
+      pit['sv'] = 1;
    else:
-      pit['holds'] = 0
-   pit['bb'] = pp['bb']
-   pit['ab'] = atbatsFromAtBats(pp['id'],p_atbats)
-   pit['hits'] = pp['h']
+      pit['sv'] = 0;
+   if 'win' in pp.keys():
+      pit['w'] = 1;
+   else:
+      pit['w'] = 0;
+   pit['sba'] = -1*int(infoFromAtBats(pp['id'],'sba',p_atbats))
+   pit['ebh'] = -1*int(infoFromAtBats(pp['id'],'ebh',p_atbats))
    pit['k'] = pp['so']
-   pit['outs'] = pp['out']
    pit['gid'] = gid
    return pit
    
-def makeBatterDict(bb,b_abrisp,wasawin,gid):
+def makeBatterDict(bb,gid):
    bat = {}
    bat['id'] = bb['id']
-   bat['wasawin'] = wasawin
    bat['hits'] = bb['h']
-   bat['doubles'] = bb['d']
-   bat['triples'] = bb['t']
    bat['hr'] = bb['hr']
-   bat['bb'] = bb['bb']
-   bat['hbp'] = bb['hbp']
-   bat['ab'] = bb['ab']
-   bat['sf'] = bb['sf']
-   bat['hrisp'] = hitsFromAtBats(bb['id'],b_abrisp)
-   bat['abrisp'] = atbatsFromAtBats(bb['id'],b_abrisp)
-   bat['sb'] = bb['sb']
    bat['rbi'] = bb['rbi']
+   bat['sb'] = bb['sb']
+   bat['so'] = -1*int(bb['so'])
    bat['gid'] = gid
    return bat
 
-def ExtractPlayerInfo(gg,p_atbats,b_abrisp):
+def ExtractPlayerInfo(gg,p_atbats):
    batters = []
    pitchers = []
    
-   if (gg['data']['boxscore']['status_ind'] == 'F'):
-      home_win = int(gg['data']['boxscore']['linescore']['home_team_runs']) > int(gg['data']['boxscore']['linescore']['away_team_runs'])
+   if (gg['data']['boxscore']['status_ind'] == 'F' or gg['data']['boxscore']['status_ind'] == 'FR'):
+      #home_win = int(gg['data']['boxscore']['linescore']['home_team_runs']) > int(gg['data']['boxscore']['linescore']['away_team_runs'])
       bats = gg['data']['boxscore']['batting']
       bh = [b for b in bats if b['team_flag']=='home']
       ba = [b for b in bats if b['team_flag']=='away']
       hbats = bh[0]['batter']
       abats =ba[0]['batter']
       gid = gg['data']['boxscore']['game_id']
-      h_batters = [makeBatterDict(bb,b_abrisp,home_win,gid) for bb in hbats]
-      a_batters = [makeBatterDict(bb,b_abrisp,not home_win,gid) for bb in abats]
+      h_batters = [makeBatterDict(bb,gid) for bb in hbats]
+      a_batters = [makeBatterDict(bb,gid) for bb in abats]
 
       batters.extend(h_batters)
       batters.extend(a_batters)
@@ -578,8 +563,8 @@ def ExtractPlayerInfo(gg,p_atbats,b_abrisp):
       if type(apits) is dict:
          apits= [apits]
 
-      h_pitchers = [makePitcherDict(pp,p_atbats,home_win,gid) for pp in hpits]
-      a_pitchers = [makePitcherDict(pp,p_atbats,not home_win,gid) for pp in apits]
+      h_pitchers = [makePitcherDict(pp,p_atbats,gid) for pp in hpits]
+      a_pitchers = [makePitcherDict(pp,p_atbats,gid) for pp in apits]
 
       pitchers.extend(h_pitchers)
       pitchers.extend(a_pitchers)
@@ -989,31 +974,28 @@ def OutputTablesToFile(filename,ts,bress,press):
 
    ii = 0
    for svi in svps:
-      m4s = scoreSingle([x['total'] for x in svps],ii)      
-      svi['through_four'] = svi['mtotal'] + m4s
-      svi['m4'] = m4s
+      m1s = scoreSingle([x['total'] for x in svps],ii)      
+      svi['m1'] = m1s
       ii = ii+1
    ff = open(filename,'wb')
    #   ff.write('teams<br>')
    #   printDictList(ff,sts,['team_name','runs_for_team','runs_against_team','error_team'])
    #   ff.flush()
-   ff.write('<BR><BR>Stats<BR>')
-   printDictList(ff,sts,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses'])
-                         
+   ff.write('<BR><BR>Stats<BR><tt>')
+   printDictList(ff,sts,['team_name','hr','rbi','sb','hits','so','w','sv','k','ebh','sba'])
+   ff.write('</tt>')
    ff.flush()
    ff.write('<BR><BR>Points<BR>')
-   printDictList(ff,svps,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses','total'])
+   printDictList(ff,svps,['team_name','hr','rbi','sb','hits','so','w','sv','k','ebh','sba','total'])
 
-#   ff.write('<BR><BR>Today Stats<BR>')
-#   printDictList(ff,stsToday,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so'])
+#   ff.write('<BR><BR>Season scores As of Today:<BR>')
 
-   ff.write('<BR><BR>Season scores As of Today:<BR>')
-
-   ssvps = sorted(svps,key=lambda k: k['through_four'],reverse=True)
-   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','through_four'])
-   ff.write('<BR><BR>')
+#   ssvps = sorted(svps,key=lambda k: k['through_four'],reverse=True)
+#   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','through_four'])
+#   ff.write('<BR><BR>')
 #   ff.write("<a href='all.csv'> all.csv </a><BR><BR>")
 
+   ff.write('<BR><BR>')
    ff.write(str(datetime.now()))
 
    ff.close()
@@ -1031,12 +1013,12 @@ def d2s(d):
 def DoTheDay():
    today = datetime.now()
    today = today.date()
-   start_date = date(2015,7,3)
-   end_date = date(2015,8,2)
+   start_date = date(2016,4,7)
+   end_date = date(2016,4,30)
    end_date = min(end_date,today)
    ts,press,bress = getFilledTeams(d2s(start_date),d2s(end_date))
 #   tsToday,rignore = getFilledTeams(d2s(end_date),d2s(end_date))
-   OutputTablesToFile('/home/eddie7/code/wb4m4/stats_wb4m4.html',ts,bress,press)
+   OutputTablesToFile('/home/eddie7/code/wb5m1/stats_wb5m1.html',ts,bress,press)
 
 def ExtractPlayers(gg,pdict):
    try:
@@ -1066,6 +1048,28 @@ def ExtractPitcherABinfo(gg):
       return []
    atbats = [atbat for atbat in root.iter('atbat')]
    pitcher_info = [{'id':x.attrib['pitcher'],'event':x.attrib['event']} for x in atbats]
+   return pitcher_info
+
+def getEBHandSBAfromAB(ab):
+   rs = [runner for runner in ab.iter('runner')]
+   rs_sb =  [runner for runner in rs if "Stolen Base" in runner.attrib['event']]
+   xbhstrings = ['Double','Triple','Home Run']
+   if ab.attrib['event'] in xbhstrings:
+      ebh = 1
+   else:
+      ebh = 0
+   if ebh > 0 or len(rs_sb) > 0:
+      return {'id':ab.attrib['pitcher'],'ebh':ebh,'sba':len(rs_sb)}
+   else:
+      return {'id':ab.attrib['pitcher'],'ebh':0,'sba':0}
+
+def ExtractPitcherAtBatInfo(gg):
+   try:
+      root= gg.getroot()
+   except:
+      return []
+   atbats = [atbat for atbat in root.iter('atbat')]
+   pitcher_info = [getEBHandSBAfromAB(x) for x in atbats if not(getEBHandSBAfromAB(x) is None)]
    return pitcher_info
 
 def hitsFromAtBats(player,atbats):
@@ -1126,10 +1130,9 @@ def CompileDayGames(date):
       jsonbox = GetGameBoxScoreJson(g)
       if not jsonbox is None:
          innings_all = GetGame(g)
-         p_atbats = ExtractPitcherABinfo(innings_all)
-         b_abrisp = ExtractBatterRISPInfo(innings_all)
+         p_atbats = ExtractPitcherAtBatInfo(innings_all)
          
-         (ps,bs) = ExtractPlayerInfo(jsonbox,p_atbats,b_abrisp)
+         (ps,bs) = ExtractPlayerInfo(jsonbox,p_atbats)
          if (len(ps) >0):
             pitchers.extend(ps)
          if (len(bs) >0):

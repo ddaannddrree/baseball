@@ -11,8 +11,8 @@ from datetime import timedelta
 from datetime import datetime
 import pytz
 import gspread 
-import MySQLdb
-import MySQLdb.cursors
+#import MySQLdb
+#import MySQLdb.cursors
 import string
 import collections
 import copy
@@ -21,11 +21,11 @@ import json
 import numpy
 import pdb
 
-db= MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4')
-cursor = db.cursor()
+#db= MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4')
+#cursor = db.cursor()
 
-dbd = MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4',cursorclass=MySQLdb.cursors.DictCursor)
-cursord = dbd.cursor()
+#dbd = MySQLdb.connect(user='root' , passwd='andnotbut', db='wb3m4',cursorclass=MySQLdb.cursors.DictCursor)
+#cursord = dbd.cursor()
 
 def hist(s):
    d = {}
@@ -61,6 +61,88 @@ def getLastNameCount(t):
    players = t['batters'] + t['pitchers']
    lastlets = ''.join([x['name'][0][0] for x in players])
    return collections.Counter(lastlets).most_common()[0][1]
+
+def loadCSV(filename):
+    with open(filename,'rU') as csvfile:
+        reader = csv.DictReader(csvfile)
+        kept2 = [row for row in reader]    
+    return kept2
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def printBest(player_stats,pos,k=24):
+    best = getBestForPos(player_stats,pos)
+    i = 0
+    for p in best:
+        if i < k:
+            print str(i) + ' ' + p['PLAYER'] + ' ops_pred: '+ str(p['ops_pred']) + ' mean:' + str(p['mean_ops']) +   ' median:' + str(p['median_ops']) + ', OPS: ' + str(p['OPS'])
+        i = i+1
+    
+def getBestForPos(player_stats, pos):
+    is_field = 'is_'+pos 
+    score_field = is_field + '_pred_sort'
+    subset = sorted(player_stats,key=lambda k: k[score_field])
+    subset = [x for x in subset if x[is_field]]
+    return subset
+    
+def makePlayerStats(battergames):
+    c = collections.Counter([x['id'] for x in battergames])
+    ids = c.keys()
+    plys = [];
+    bpreds = loadCSV('/Users/dandre/downloads/ops_preds.csv')
+    bp_ids = [x['MLB_ID'] for x in bpreds]
+    for i in bp_ids:
+        pgs = [x for x in battergames if str(x['id']) == i]
+        base_dict = [x for x in bpreds if x['MLB_ID'] == i]
+        if base_dict is None:
+            print 'No BP element for ' + str(bp_ids)
+        if not(pgs is None):
+            if len(pgs) > 1:
+                print 'doing ' + str(i)
+                base_dict = base_dict[0]                
+                if not(is_number(base_dict['OPS'])):
+                    base_dict['OPS'] = 0
+                    print 'No OPS?!?'
+                ops = [float(x['ops']) for x in pgs]
+                base_dict['mean_ops'] = numpy.mean(ops)
+                base_dict['std_ops'] = numpy.std(ops)
+                base_dict['median_ops'] = numpy.median(ops)
+                print 'base_dict-OPS is ' + str(base_dict['OPS']) + ' median is ' + str(base_dict['median_ops']) + ' mean is ' + str(base_dict['mean_ops']) + ' and std is ' + str(base_dict['std_ops'])
+                
+                base_dict['ops_pred'] = 0.5*float(base_dict['OPS']) + 0.3*base_dict['median_ops']+0.2*(base_dict['mean_ops']/(0.00001+base_dict['std_ops']))
+                base_dict['ngames'] = len(ops)
+                base_dict['elig_pos'] = base_dict['POS'].split(',')
+                base_dict['is_c'] = 'C' in base_dict['elig_pos']
+                base_dict['is_1'] = '1B' in base_dict['elig_pos']
+                base_dict['is_2'] = '2B' in base_dict['elig_pos']
+                base_dict['is_ss'] = 'SS' in base_dict['elig_pos']
+                base_dict['is_3'] = '3B' in base_dict['elig_pos']
+                base_dict['is_OF'] = len(set(['RF','CF','LF']).intersection(base_dict['elig_pos'])) > 0
+                plys.append(base_dict)
+                #            else:
+                #print 'only one game?!?'
+        else:
+            print 'no games this year?!?'
+    #Now, put in the sort order by both median_ops by category, and OPS by category
+    positions = ['is_c','is_1','is_2','is_ss','is_3','is_OF']
+    for p in positions:
+        plys = sorted(plys,key=lambda k: k['OPS']*(1 if k[p] else 0),reverse=True)
+        for i,x in enumerate(plys):
+            x[p+'_OPS_sort'] = i
+        plys = sorted(plys,key=lambda k: k['median_ops']*(1 if k[p] else 0),reverse=True)
+        for i,x in enumerate(plys):
+            x[p+'_median_sort'] = i
+        plys = sorted(plys,key=lambda k: k['ops_pred']*(1 if k[p] else 0),reverse=True)
+        for i,x in enumerate(plys):
+            x[p+'_pred_sort'] = i
+    return plys
+        
+            
 
 def getLongestStreak(x,onlyLatest=False):
    stk_n = 0
@@ -223,7 +305,7 @@ def getVictoryPoints(ts):
    #return a list of dictonaries with the season-point scores
    #Total Bases, Runs, SB, SF + SH, BB; 
    #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-   fnames_for_scoring = ['team','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses','total']
+   fnames_for_scoring = ['team','pts_total']
                          
    tsc = copy.deepcopy(ts)
    vsc = []
@@ -236,6 +318,10 @@ def getVictoryPoints(ts):
          tsc[tt][lab] = dascore
          tsc[tt]['total'] = tsc[tt]['total'] + dascore
    return tsc
+
+def lookupPlayer2(name,ps):
+    cands = [[x['PLAYER'],x['MLB_ID']] for x in ps if name in x['PLAYER']]
+    return cands
 
 def lookupPlayer(lastname,players):
    pls = [x for x in players.values() if x['last']==lastname]
@@ -273,66 +359,70 @@ def extractTeam(team,label,ts):
    else:
       return ''
 
-
+def addOPS(hitstats):
+    if hitstats['ab'] == 0:
+        hitstats['slg'] = 0
+    else:
+        hitstats['slg'] = (float(hitstats['tb']/float(hitstats['ab'])))
+    if (hitstats['ab']+hitstats['bb']+hitstats['sf']+hitstats['hbp']) == 0:   
+        hitstats['obp'] = 0
+    else:
+        hitstats['obp'] = float(hitstats['hits']+hitstats['bb']+hitstats['hbp'])/float(hitstats['ab']+hitstats['bb']+hitstats['sf']+hitstats['hbp'])
+    hitstats['ops'] = round(hitstats['slg'] + hitstats['obp'],5)    
+   
 def getFilledTeams(date1,date2):
-   ts = getTeams()
-   (press,bress) = CompileRangeGames(date1,date2)
-   for t in ts:
-      #Total Bases, Runs, SB, SF + SH, BB; 
-      #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-      pits = [p['id'] for p in t['pitchers']]
-      bats = [b['id'] for b in t['batters']]
-      mysum=lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players])
-      mywinsum =lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players and x['wasawin']])
-      hitlabels = [x for x in bress[0].keys() if x not in ['id','wasawin','gid']]
-      pitlabels = [x for x in press[0].keys() if x not in ['id','wasawin','gid']]
-      hitstats = {}
-      pitstats = {}
-      for label in hitlabels:
-         hitstats[label] = mywinsum(bats,label,bress)
-         #         hitstats['all_'+label] = mysum(bats,label,bress)
-      for label in pitlabels:
-         pitstats[label] = mywinsum(pits,label,press)
-         #        pitstats['all_'+label] = mysum(bats,label,bress)
-      t['pitstats'] = pitstats
-      t['hitstats'] = hitstats
-      #Now make the actual stats
-      hs = hitstats
-      ps = pitstats
-      hs['tb'] = hs['hits']+hs['doubles']+hs['triples']*2+hs['hr']*3
-      if hs['ab'] == 0:
-         t['slg'] = 0
-      else:
-         t['slg'] = (float(hs['tb']/float(hs['ab'])))
-      if (hs['ab']+hs['bb']+hs['sf']+hs['hbp']) == 0:
-         t['obp'] = 0
-      else:
-         t['obp'] = float(hs['hits']+hs['bb']+hs['hbp'])/float(hs['ab']+hs['bb']+hs['sf']+hs['hbp'])
-      t['ops'] = round(t['slg'] + t['obp'],5)
-      if (hs['abrisp']) == 0:
-         t['barisp'] = 0
-      else:
-         t['barisp'] = round(float(hs['hrisp'])/float(hs['abrisp']),5)
-      t['sb'] = hs['sb']
-      t['dpt'] = hs['doubles']+hs['triples']
-      if (hs['ab'] == 0):
-         t['rbiab'] = 0
-      else:
-         t['rbiab'] = round(float(hs['rbi'])/float(hs['ab']),5)
-      t['holds'] = ps['holds']
-      t['ip'] = round(float(ps['outs'])/3.0,3)
-      if t['ip'] == 0:
-         t['whip'] = -30
-      else:
-         t['whip'] = -round(float(ps['bb']+ps['hits'])/(float(t['ip'])),5)
-      if ps['ab'] == 0:
-         t['baa'] = 1.0
-      else:
-         t['baa'] = -round(float(ps['hits'])/float(ps['ab']),5)
-      t['k'] = float(ps['k'])
-                                              
-                  
-   return ts,press,bress
+    ts = getTeams()
+    (bress,press) = CompileRangeGames(date1,date2)
+    mysum=lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players])
+    hitlabels = ['ab','tb','bb','hits','hbp','sf']
+    daycodes = set([x['daycode'] for x in bress])
+    #am here for fixing up for rest of whiskey ball
+    #Ok -- task here is different.   We want ab,bb,tb,hits,hbp,sf for each day, by team.  
+    for t in ts:
+        t['days'] = []
+        t['pts_total'] = 0
+    for dc in daycodes:
+        daygames = [b for b in bress if dc == b['daycode']]
+        for t in ts:
+            bats = [b for b in t['batters']]
+            t['tmp_ops'] = 0
+            hitstats = {}
+            for label in hitlabels:
+                hitstats[label] = mysum(bats,label,daygames)
+            daybats = [b for b in daygames if int(b['id']) in bats]
+            hitstats['daycode'] = dc
+            addOPS(hitstats)
+            t['days'].append({'daycode':dc,'ops':hitstats['ops'],'hitstats':hitstats,'daybats':daybats})
+        #Now, get the victory score by team
+        todayscores = [x['days'][-1]['ops'] for x in ts]
+        for tt in range(0,len(ts)):
+            dascore = scoreSingle(todayscores,tt)
+            ts[tt]['days'][-1]['pts'] = dascore
+            ts[tt]['pts_total'] = ts[tt]['pts_total'] + dascore
+    return ts,bress
+
+def writeTeamInfo_wb4m5(ff,ts):
+    for t in ts:
+        ff.write('For ' + t['team_name'] +':\n')
+        sdays = sorted(t['days'],key=lambda t:int(t['daycode']))        
+        for d in sdays:
+            ff.write('For day ' + str(d['daycode'])+'\n')
+            for p in d['daybats']:
+                ff.write(p['name'] + ', ab:'+str(p['ab'])+', hits:'+str(p['hits'])+', bb:'+str(p['bb'])+', hbp:'+str(p['hbp'])+', sf:'+str(p['sf'])+', tb:'+str(p['tb'])+'\n')
+            ff.write('>> ops:'+str(d['ops'])+', pts:'+str(d['pts'])+'\n\n')
+        ff.write('pts_total: '+str(t['pts_total'])+'\n\n')
+   
+
+def printTeamInfo_wb4m5(ts):
+    for t in ts:
+        print 'For ' + t['team_name'] +':'
+        for d in t['days']:
+            print 'For day ' + str(d['daycode'])
+            for p in d['daybats']:
+                print p['name'] + ', ab:'+str(p['ab'])+', hits:'+str(p['hits'])+', bb:'+str(p['bb'])+', hbp:'+str(p['hbp'])+', sf:'+str(p['sf'])+', tb:'+str(p['tb'])
+            print 'ops:'+str(d['ops'])+', pts:'+str(d['pts'])
+        print 'pts_total: '+str(t['pts_total'])
+            
 
 
 def printFilesForTeams(ts,press,bress):
@@ -391,52 +481,47 @@ def getTeamsMay():
    ts.append(makeTeamDict(team_names[7],'12','2681','3309',8))
    return ts
 
+def printTeamPlayers(ts,bress):
+    for t in ts:
+        print ''
+        print 'for Team: ' + t['team_name']
+        for b in t['batters']:
+            matches = [x for x in bress if b==int(x['id'])]
+            if (len(matches)>0):
+                print matches[0]['name'] + ' ' + str(matches[0]['id'])
+            else:
+                print 'no match found for ' + str(b)
+
 def getTeams():
     team_names = ['Detroit Tednugents','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
 
-    losses = [664,569,569, 600, 571, 636, 609, 575]
     m1 = [4,5.5,5.5,3,  1,  7,  2,  8]
     m2 = [4,  1,  4,2,  6,7.5,  4,7.5, ]
     m3 = [3,  7,5.5,8,  2,  1,5.5,  4, ]
-    players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))
-
-    pitchers = [];
-    pitchers.append([519293,543243,477132,431148,447714,519267])#brad
-    pitchers.append([502042,453329,489265,453562,544931,425844])#brent
-    pitchers.append([434628,450212,429717,502188,453286,430935])#scott
-    pitchers.append([446372,434538,425657,519242,517593,456501])#John
-    pitchers.append([518813,471911,453343,461833,519455,518886])#jesse
-    pitchers.append([518516,434378,453178,502202,571666,605476])#dave
-    pitchers.append([453265,433587,518774,547888,452657,448306])#martin
-    pitchers.append([572971,543037,547973,594798,605228,456034])#tom
-
+    m4 = [8, 5, 4, 7, 3, 1, 6, 2]
+    
+    #players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))
 
     batters = [];
-    batters.append([460026,452252,543401,133380,593428,453568,545361,519184,457803])#brad
-    batters.append([457763,502671,622110,592178,493351,488726,430945,571740,624577])#brent
-    batters.append([519390,519203,514888,453943,425509,502110,458731,456715,572821])#scott
-    batters.append([431145,458015,450314,571448,543063,461314,542303,547180,592518])#john
-    batters.append([452095,408236,429664,518626,408314,457705,443558,457708,405395])#jesse
-    batters.append([501647,425902,543829,134181,453064,460075,460576,493316,467055])#dave
-    batters.append([518960,408234,543281,630111,434670,605141,466320,471865,120074])#martin
-    batters.append([435263,547989,605412,121347,543760,516782,430832,453056,429665])#tom
+    batters.append([518735,120074,435522,571448,425509,592178,547180,624577])#brad
+    batters.append([460026,458015,450314,572761,453064,493316,452254,594809])#brent
+    batters.append([431145,518614,572821,518626,621043,502110,458731,467827])#scott
+    batters.append([457763,405395,622110,592518,543063,443558,488726,444482])#john
+    batters.append([456078,407893,429664,628356,520471,466320,471865,461314])#jesse
+    batters.append([518595,502671,435079,476704,543685,457705,460075,592835])#dave
+    batters.append([430832,408314,502374,453211,134181,543401,475100,547989])#martin
+    batters.append([593934,545361,656941,519203,605412,571771,456715,430945])#tom
 
     teams = []
     i=0
     for team_name in team_names:
        fbs = [];
        fps = [];
-       for b in batters[i]:
-          player = players[str(b)]
-          fbs.append({'name':player['name'],'id':b})
-       for p in pitchers[i]:
-          player = players[str(p)]
-          fps.append({'name':player['name'],'id':p})
-       teams.append({'team_name':team_name, 'batters':fbs, 'pitchers':fps, 'losses':losses[i], 'm1':m1[i],'m2':m2[i],'m3':m3[i],'mtotal':m1[i]+m2[i]+m3[i]})
+       teams.append({'team_name':team_name, 'batters':batters[i], 'm1':m1[i],'m2':m2[i],'m3':m3[i],'m4':m4[i],'mtotal':m1[i]+m2[i]+m3[i]+m4[i]})
        i=i+1
     return teams
 
-def printTeams():
+def OLDprintTeams():
    teams = getTeams()
    for team in teams:
       print 'Team name is ' + team['team_name']
@@ -531,170 +616,63 @@ def makePitcherDict(pp,p_atbats,wasawin,gid):
    pit['gid'] = gid
    return pit
    
-def makeBatterDict(bb,b_abrisp,wasawin,gid):
+def makeBatterDict(bb,gid):
    bat = {}
-   bat['id'] = bb['id']
-   bat['wasawin'] = wasawin
-   bat['hits'] = bb['h']
-   bat['doubles'] = bb['d']
-   bat['triples'] = bb['t']
-   bat['hr'] = bb['hr']
-   bat['bb'] = bb['bb']
-   bat['hbp'] = bb['hbp']
-   bat['ab'] = bb['ab']
-   bat['sf'] = bb['sf']
-   bat['hrisp'] = hitsFromAtBats(bb['id'],b_abrisp)
-   bat['abrisp'] = atbatsFromAtBats(bb['id'],b_abrisp)
-   bat['sb'] = bb['sb']
-   bat['rbi'] = bb['rbi']
+   bat['id'] = int(bb['id'])
+   bat['hits'] = int(bb['h'])
+   bat['doubles'] = int(bb['d'])
+   bat['triples'] = int(bb['t'])
+   bat['hr'] = int(bb['hr'])
+   bat['bb'] = int(bb['bb'])
+   bat['hbp'] = int(bb['hbp'])
+   bat['ab'] = int(bb['ab'])
+   bat['sf'] = int(bb['sf'])
    bat['gid'] = gid
+   dt = datetime.strptime(gid[0:10],'%Y/%m/%d').date()
+   bat['year'] = dt.year
+   bat['month'] = dt.month
+   bat['day'] = dt.day
+   bat['daycode'] = dt.year*10000 + dt.month*100 + dt.day
+   bat['name'] = bb['name_display_first_last']
+   bat['tb'] = bat['hits']+bat['doubles']+bat['triples']*2+bat['hr']*3
+   if bat['ab'] == 0:
+       bat['slg'] = 0
+   else:
+       bat['slg'] = (float(bat['tb']/float(bat['ab'])))
+   if (bat['ab']+bat['bb']+bat['sf']+bat['hbp']) == 0:   
+       bat['obp'] = 0
+   else:
+       bat['obp'] = float(bat['hits']+bat['bb']+bat['hbp'])/float(bat['ab']+bat['bb']+bat['sf']+bat['hbp'])
+   bat['ops'] = round(bat['slg'] + bat['obp'],5)
+
    return bat
 
-def ExtractPlayerInfo(gg,p_atbats,b_abrisp):
+def ExtractPlayerInfo(gg):
    batters = []
-   pitchers = []
    
-   if (gg['data']['boxscore']['status_ind'] == 'F'):
-      home_win = int(gg['data']['boxscore']['linescore']['home_team_runs']) > int(gg['data']['boxscore']['linescore']['away_team_runs'])
-      bats = gg['data']['boxscore']['batting']
-      bh = [b for b in bats if b['team_flag']=='home']
-      ba = [b for b in bats if b['team_flag']=='away']
-      hbats = bh[0]['batter']
-      abats =ba[0]['batter']
-      gid = gg['data']['boxscore']['game_id']
-      h_batters = [makeBatterDict(bb,b_abrisp,home_win,gid) for bb in hbats]
-      a_batters = [makeBatterDict(bb,b_abrisp,not home_win,gid) for bb in abats]
-
-      batters.extend(h_batters)
-      batters.extend(a_batters)
-      
-      pits = gg['data']['boxscore']['pitching']
-      ph = [p for p in pits if p['team_flag']=='home']
-      pa = [p for p in pits if p['team_flag']=='away']
-      hpits = ph[0]['pitcher']
-      if type(hpits) is dict:
-         hpits= [hpits]
-      apits = pa[0]['pitcher']
-      if type(apits) is dict:
-         apits= [apits]
-
-      h_pitchers = [makePitcherDict(pp,p_atbats,home_win,gid) for pp in hpits]
-      a_pitchers = [makePitcherDict(pp,p_atbats,not home_win,gid) for pp in apits]
-
-      pitchers.extend(h_pitchers)
-      pitchers.extend(a_pitchers)
-
-
-   return (pitchers,batters)
-
-#
-
-   """Takes json dictionary of all boxscore, returns relevant stuff"""
-   retval = [];
-   badval = [];
-   res = {}
-   resH = {};
-   resA = {};
    try:
-      resH['team'] = dd['data']['boxscore']['home_team_code']
-      resH['runs_for'] = int(dd['data']['boxscore']['linescore']['home_team_runs'])
-      resH['runs_against'] = int(dd['data']['boxscore']['linescore']['away_team_runs'])
-      resH['game_id'] = dd['data']['boxscore']['game_id']
-
-      resA['team'] = dd['data']['boxscore']['away_team_code']
-      resA['runs_for'] = int(dd['data']['boxscore']['linescore']['away_team_runs'])
-      resA['runs_against'] = int(dd['data']['boxscore']['linescore']['home_team_runs'])
-      resA['game_id'] = dd['data']['boxscore']['game_id']
-
-      bats = dd['data']['boxscore']['batting']
-      bh = [b for b in bats if b['team_flag']=='home']
-      ba = [b for b in bats if b['team_flag']=='away']
-
-      resH['bb'] = bh[0]['bb']
-      resA['bb'] = ba[0]['bb']
-      
-      pits = dd['data']['boxscore']['pitching']
-      ph = [p for p in pits if p['team_flag']=='home']
-      pa = [p for p in pits if p['team_flag']=='away']
-
-      resH['so'] = int(ph[0]['so'])
-      resA['so'] = int(pa[0]['so'])
-
-      #Total Bases, Runs, SB, SF + SH, BB; 
-      bh_list = bh[0]['batter']
-      ba_list = ba[0]['batter']
-      resH['hr'] = sum([int(x['hr']) for x in bh_list])
-      resA['hr'] = sum([int(x['hr']) for x in ba_list])
-      resH['t'] = sum([int(x['t']) for x in bh_list])
-      resA['t'] = sum([int(x['t']) for x in ba_list])
-      resH['d'] = sum([int(x['d']) for x in bh_list])
-      resA['d'] = sum([int(x['d']) for x in ba_list])
-      resH['h'] = sum([int(x['h']) for x in bh_list])
-      resA['h'] = sum([int(x['h']) for x in ba_list])
-      resH['tb'] = resH['h'] + resH['hr']*3 + resH['t']*2 + resH['d']
-      resA['tb'] = resA['h'] + resA['hr']*3 + resA['t']*2 + resA['d']
-      resH['sac'] = sum([int(x['sac']) for x in bh_list])
-      resA['sac'] = sum([int(x['sac']) for x in ba_list])
-      resH['sf'] = sum([int(x['sf']) for x in bh_list])
-      resA['sf'] = sum([int(x['sf']) for x in ba_list])
-      resH['sacsf'] = int(resH['sac']) + int(resH['sf'])
-      resA['sacsf'] = int(resA['sac']) + int(resA['sf'])
-      resH['bb'] = sum([int(x['bb']) for x in bh_list])
-      resA['bb'] = sum([int(x['bb']) for x in ba_list])
-      resH['sb'] = sum([int(x['sb']) for x in bh_list])
-      resA['sb'] = sum([int(x['sb']) for x in ba_list])
-
-      #Total Bases, Runs, SB, SF + SH, BB; 
-      #Quality Starts, x Runs Allowed, Saves, Holds, x Strikeouts
-      ph_list = ph[0]['pitcher']      
-      pa_list = pa[0]['pitcher']      
-
-      if isinstance(pa_list,(dict)):
-         pa_list = [pa_list]
-      if isinstance(ph_list,(dict)):
-         ph_list = [ph_list]
-      
-      resH['saves'] = len([s for s in ph_list if 'save' in s.keys()])
-      resA['saves'] = len([s for s in pa_list if 'save' in s.keys()])
-
-      #ok, futzing....
-      notesH = [p['note'] for p in ph_list if 'note' in p.keys()]
-      notesA = [p['note'] for p in pa_list if 'note' in p.keys()]
-
-      resH['holds'] = len([x for x in notesH if '(H' in x])
-      resA['holds'] = len([x for x in notesA if '(H' in x])
-
-      outsH = int(ph_list[0]['out'])
-      outsA = int(pa_list[0]['out'])
-
-      erH = int(ph_list[0]['er'])
-      erA = int(pa_list[0]['er'])
-
-      if erH <= 3 and outsH >= 18:
-         resH['qs'] = 1
-      else:
-         resH['qs'] = 0
+      status = gg['data']['boxscore']['status_ind'] 
+      if not(status == 'DR'): 
+         date = gg['data']['boxscore']['date']
+         game_time = datetime.strptime(date, '%B %d, %Y')
+         now = datetime.now()
+         dt = now-game_time
+         if (dt.days < 1 or status=='F'):
+            bats = gg['data']['boxscore']['batting']
+            gid = gg['data']['boxscore']['game_id']
+            bh = [b for b in bats if b['team_flag']=='home']
+            ba = [b for b in bats if b['team_flag']=='away']
+            hbats = bh[0]['batter']
+            abats =ba[0]['batter']
          
-      if erA <= 3 and outsA >= 18:
-         resA['qs'] = 1
-      else:
-         resA['qs'] = 0
-
+            hbats2 = [makeBatterDict(bb,gid) for bb in hbats]
+            abats2 = [makeBatterDict(bb,gid) for bb in abats]
+         
+            batters.extend(hbats2)
+            batters.extend(abats2)
    except:
-      print 'no data yet'
-      print resH
-      print resA
-      fres = res
-      res = {}
-      #pdb.set_trace()
-      resH = {}
-      resA = {}
-      
-   if (len(resH) > 0):
-      retval.append(resH)      
-   if (len(resA) > 0):
-      retval.append(resA)      
-   return retval
+      print 'no game yet'
+   return batters
 
       
 def TodaysGames():
@@ -947,6 +925,11 @@ def AddGameToDB(g,date):
          for ab in atbats:
             AddAtBatToDB(ab,g,date)
 
+def printwb4m5_preds(ps):
+    ff = open('/Users/dandre/code/wb4m5_preds.csv','wb')
+    printDictListCSV(ff,ps,['PLAYER','$$$','AB','MLB_ID','PA','TEAM','is_1','is_2','is_ss','is_3','is_c','is_OF','ops_pred','OPS','mean_ops','median_ops','ngames','std_ops'])
+    ff.close()
+    
 def printDictList(ff, dlist, cols=None):
    if cols is None:
       cols = dlist[0].keys
@@ -979,46 +962,95 @@ def printDictListCSV(ff, dlist, cols=None):
       ff.write('\n')
    ff.flush()
 
+def printVerboseTable(ff,ts):
+   tss = sorted(ts,key=lambda t:t['pts_total'],reverse=True)
+   sorted_ts0_days = sorted(ts[0]['days'],key=lambda t:int(t['daycode']))
+   days = [x['daycode'] for x in sorted_ts0_days]
+   tnames = [t['team_name'] for t in ts]
+   tlens = [len(t) for t in tnames]
+   ff.write('<table><tr>')
+   ff.write('<th></th>')
+   for d in days:
+      ff.write('<th>AUG '+str(d)[6:8]+'</th>')
+   ff.write('<th>tot</th></tr><br>')
+   for t in tss:
+      ff.write('<tr><td>'+t['team_name']+'</td>')
+      i=0
+      sorted_days = sorted(t['days'],key=lambda t:int(t['daycode']))
+      for d in sorted_days:
+         ff.write('<td>'+'{0:.3f}'.format(d['ops']) +' ('+str(round(d['pts'],1))+')</td>')
+      ff.write('<td>'+str(t['pts_total'])+'</td></tr>')
+   ff.write('</table>')
 
-def OutputTablesToFile(filename,ts,bress,press):
+def printConciseTable(ff,ts):
+   tss = sorted(ts,key=lambda t:t['pts_total'],reverse=True)
+   sorted_ts0_days = sorted(ts[0]['days'],key=lambda t:int(t['daycode']))
+   days = [x['daycode'] for x in sorted_ts0_days]
+   tnames = [t['team_name'] for t in ts]
+   tlens = [len(t) for t in tnames]
+   ff.write('<table><tr>')
+   ff.write('<th></th>')
+   for d in days:
+      ff.write('<th>'+str(d)[6:8]+'</th>')
+   ff.write('<th>tot</th></tr><br>')
+   for t in tss:
+      ff.write('<tr><td>'+t['team_name']+'</td>')
+      i=0
+      sorted_days = sorted(t['days'],key=lambda t:int(t['daycode']))
+      for d in sorted_days:
+         ff.write('<td>'+str(int(d['pts']))+'</td>')
+      ff.write('<td>'+str(int(t['pts_total']))+'</td></tr>')
+   ff.write('</table>')
+
+
+
+def OutputTablesToFile(filename,ts,bress):
    tls = ts
    vps = getVictoryPoints(ts)
-   svps = sorted(vps,key=lambda k: k['total'],reverse=True)
-   sts = [x for (x,y) in sorted(zip(ts,vps),key=lambda k: k[1]['total'],reverse=True)]   
+   svps = sorted(vps,key=lambda k: k['pts_total'],reverse=True)
+   sts = [x for (x,y) in sorted(zip(ts,vps),key=lambda k: k[1]['pts_total'],reverse=True)]   
    #stsToday = [x for (x,y) in sorted(zip(tsToday,vps),key=lambda k: k[1]['total'],reverse=True)]
 
    ii = 0
    for svi in svps:
-      m4s = scoreSingle([x['total'] for x in svps],ii)      
-      svi['through_four'] = svi['mtotal'] + m4s
-      svi['m4'] = m4s
+      m5s = scoreSingle([x['pts_total'] for x in svps],ii)      
+      svi['through_five'] = svi['mtotal'] + m5s
+      svi['m5'] = m5s
       ii = ii+1
    ff = open(filename,'wb')
    #   ff.write('teams<br>')
    #   printDictList(ff,sts,['team_name','runs_for_team','runs_against_team','error_team'])
    #   ff.flush()
    ff.write('<BR><BR>Stats<BR>')
-   printDictList(ff,sts,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses'])
+
+   printVerboseTable(ff,ts)
+   ff.write('<BR><BR>Concise Stats<BR>')
+   printConciseTable(ff,ts)
+
+   #ff.write('<BR><BR>Total Day Points<BR>')
+   #printDictList(ff,sts,['team_name','pts_total'])
                          
-   ff.flush()
-   ff.write('<BR><BR>Points<BR>')
-   printDictList(ff,svps,['team_name','ops','barisp','dpt','sb','rbiab','holds','baa','whip','k','ip','losses','total'])
+   #ff.flush()
+   #ff.write('<BR><BR>Monthly Points<BR>')
+   #printDictList(ff,svps,['team_name','pts_total'])
 
 #   ff.write('<BR><BR>Today Stats<BR>')
 #   printDictList(ff,stsToday,['team_name','tb','runs','sb','sacsf','bb','qs','runs-a','saves','holds','so'])
 
    ff.write('<BR><BR>Season scores As of Today:<BR>')
 
-   ssvps = sorted(svps,key=lambda k: k['through_four'],reverse=True)
-   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','through_four'])
-   ff.write('<BR><BR>')
-#   ff.write("<a href='all.csv'> all.csv </a><BR><BR>")
+   ssvps = sorted(svps,key=lambda k: k['through_five'],reverse=True)
+   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','m5','through_five'])
+   ff.write('<BR>Detailed Results:<BR>')
+   ff.write("<a href='all.txt'> here </a><BR><BR>")
 
    ff.write(str(datetime.now()))
 
    ff.close()
-   printFilesForTeams(ts,press,bress)
-#   ff = open('/home/eddie7/code/wb4m3/all.csv','wb')
+   #printFilesForTeams(ts,press,bress)
+   ff = open('/home/eddie7/code/wb4m5/all.txt','wb')
+   writeTeamInfo_wb4m5(ff,ts)
+   ff.close()
 #   printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
 #   printDictListCSV(ff,ress)
 #   ff.close()
@@ -1031,12 +1063,12 @@ def d2s(d):
 def DoTheDay():
    today = datetime.now()
    today = today.date()
-   start_date = date(2015,7,3)
-   end_date = date(2015,8,2)
+   start_date = date(2015,8,3)
+   end_date = date(2015,8,31)
    end_date = min(end_date,today)
-   ts,press,bress = getFilledTeams(d2s(start_date),d2s(end_date))
+   ts,bress = getFilledTeams(d2s(start_date),d2s(end_date))
 #   tsToday,rignore = getFilledTeams(d2s(end_date),d2s(end_date))
-   OutputTablesToFile('/home/eddie7/code/wb4m4/stats_wb4m4.html',ts,bress,press)
+   OutputTablesToFile('/home/eddie7/code/wb5m1/stats_wb5m1.html',ts,bress)
 
 def ExtractPlayers(gg,pdict):
    try:
@@ -1119,22 +1151,15 @@ def GetDayEvents(date):
 
 def CompileDayGames(date):
    batters = []
-   pitchers = []
    gameids = DateGames(date)
    for g in gameids:
       print 'Doing game ' + g
       jsonbox = GetGameBoxScoreJson(g)
       if not jsonbox is None:
-         innings_all = GetGame(g)
-         p_atbats = ExtractPitcherABinfo(innings_all)
-         b_abrisp = ExtractBatterRISPInfo(innings_all)
-         
-         (ps,bs) = ExtractPlayerInfo(jsonbox,p_atbats,b_abrisp)
-         if (len(ps) >0):
-            pitchers.extend(ps)
+         bs = ExtractPlayerInfo(jsonbox)
          if (len(bs) >0):
             batters.extend(bs)
-   return (pitchers,batters)
+   return batters
 
 def DayGamesToDB(date):
    gameids = DateGames(date)
@@ -1188,7 +1213,6 @@ def GetTheEvents(date1,date2):
    
 
 def CompileRangeGames(date1,date2):
-   pres = []
    bres = []
    pdate1 = datetime.strptime(date1,'%Y_%m_%d').date()
    pdate2 = datetime.strptime(date2,'%Y_%m_%d').date()
@@ -1198,13 +1222,11 @@ def CompileRangeGames(date1,date2):
    thedate = pdate1
    while thedate <=pdate2:
       print 'Doing games for date ' + str(thedate)
-      (ps,bs) = CompileDayGames(thedate.strftime('%Y_%m_%d'))
-      if len(ps) > 0:
-         pres.extend(ps)
+      bs = CompileDayGames(thedate.strftime('%Y_%m_%d'))
       if len(bs) > 0:
          bres.extend(bs)
       thedate = thedate+oneday
-   return (pres,bres)
+   return bres
 
 def PrintMonth():
     print 'Rangers,Reds,Rockies,Rays,Tigers,Brewers,Orioles,Indians,Giants,Braves,Pirates,BlueJays,RedSox,Mets,Cardinals,Yankees,'

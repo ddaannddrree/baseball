@@ -289,10 +289,10 @@ def getFilledTeams(date1,date2):
       hitstats = {}
       pitstats = {}
       for label in hitlabels:
-         hitstats[label] = mywinsum(bats,label,bress)
+         hitstats[label] = mysum(bats,label,bress)
          #         hitstats['all_'+label] = mysum(bats,label,bress)
       for label in pitlabels:
-         pitstats[label] = mywinsum(pits,label,press)
+         pitstats[label] = mysum(pits,label,press)
          #        pitstats['all_'+label] = mysum(bats,label,bress)
       t['pitstats'] = pitstats
       t['hitstats'] = hitstats
@@ -335,33 +335,6 @@ def getFilledTeams(date1,date2):
    return ts,press,bress
 
 
-def printFilesForTeams(ts,press,bress):
-   for t in ts:
-      bff = open('/home/eddie7/code/wb4m4/' + t['team_name'].replace(" ","") + '_batters.csv','wb')
-      pff = open('/home/eddie7/code/wb4m4/' + t['team_name'].replace(" ","") + '_pitchers.csv','wb')
-      bre = getBattingRawEvents(bress,t)
-      pre = getPitchingRawEvents(press,t)
-      printDictListCSV(bff,bre)
-      printDictListCSV(pff,pre)
-      bff.close()
-      pff.close()
-
-def getPitchingRawEvents(press, t, onlywin=True):
-   pits = [p['id'] for p in t['pitchers']]
-   actives = [x for x in press if int(x['id']) in pits and (x['wasawin'] or not onlywin)]
-   players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))   
-   for a in actives:
-      a['player_name'] = players[a['id']]['name']
-   return actives
-      
-def getBattingRawEvents(bress, t, onlywin=True):
-   bats = [b['id'] for b in t['batters']]
-   actives = [x for x in bress if int(x['id']) in bats and (x['wasawin'] or not onlywin)]
-   players = pickle.load(open('/home/eddie7/code/players_wb4m4.p','rb'))      
-   for a in actives:
-      a['player_name'] = players[a['id']]['name']
-   return actives
-   
 def getTeamsJune():
    ts = [];
    team_names = ['Detroit Noojies (aka dbags)','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
@@ -414,7 +387,7 @@ def getTeams():
     batters = [];
     batters.append([460026,452252,543401,133380,593428,453568,545361,519184,457803])#brad
     batters.append([457763,502671,622110,592178,493351,488726,430945,571740,624577])#brent
-    batters.append([519390,519203,514888,453943,425509,502110,458731,456715,572821])#scott
+    batters.append([519390,519203,514888,453943,407908,502110,458731,456715,572821])#scott
     batters.append([431145,458015,450314,571448,543063,461314,542303,547180,592518])#john
     batters.append([452095,408236,429664,518626,408314,457705,443558,457708,405395])#jesse
     batters.append([501647,425902,543829,134181,453064,460075,460576,493316,467055])#dave
@@ -965,7 +938,6 @@ def printDictList(ff, dlist, cols=None):
    ff.flush()
 
 def printDictListCSV(ff, dlist, cols=None):
-   print len(dlist)
    if cols is None:
       cols = dlist[0].keys()
    #printheader
@@ -1017,7 +989,6 @@ def OutputTablesToFile(filename,ts,bress,press):
    ff.write(str(datetime.now()))
 
    ff.close()
-   printFilesForTeams(ts,press,bress)
 #   ff = open('/home/eddie7/code/wb4m3/all.csv','wb')
 #   printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
 #   printDictListCSV(ff,ress)
@@ -1032,11 +1003,11 @@ def DoTheDay():
    today = datetime.now()
    today = today.date()
    start_date = date(2015,7,3)
-   end_date = date(2015,8,2)
+   end_date = date(2015,7,31)
    end_date = min(end_date,today)
    ts,press,bress = getFilledTeams(d2s(start_date),d2s(end_date))
 #   tsToday,rignore = getFilledTeams(d2s(end_date),d2s(end_date))
-   OutputTablesToFile('/home/eddie7/code/wb4m4/stats_wb4m4.html',ts,bress,press)
+   OutputTablesToFile('/home/eddie7/code/wb4m4/stats_wb4m4_all.html',ts,press,bress)
 
 def ExtractPlayers(gg,pdict):
    try:
@@ -1074,7 +1045,7 @@ def hitsFromAtBats(player,atbats):
    return len(hitlist)
 
 def atbatsFromAtBats(player,atbats):
-   notab = ['Walk','Intent Walk', 'Catcher Interference','Sac Fly','Hit By Pitch','Sac Bunt','Sac Fly DP','Runner Out','Sacrifice Bunt DP']
+   notab = ['Walk','Intent Walk', 'Catcher Interference','Sac Fly','Hit by Pitch','Sac Bunt','Sac Fly DP','Runner Out','Sacrifice Bunt DP']
    ablist = [x for x in atbats if player==x['id'] and x['event'] not in notab]
    return len(ablist)
 
