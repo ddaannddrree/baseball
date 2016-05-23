@@ -199,13 +199,13 @@ def getTeams():
     # keep track of replacements here - better in a csv file?
     replacements = []
     replacements.append([])#brad
-    replacements.append([{'id':608070,'name':'Jose Ramirez','basedef':1.4,'start':'2016/05/10'}])#brent
+    replacements.append([{'id':608070,'name':'Jose Ramirez','basedef':1.9,'start':'2016/05/10'}])#brent
     replacements.append([])#scott
-    replacements.append([{'id':460060,'name':'Cliff Pennington','basedef':1.4,'start':'2016/05/09'},{'id':453895,'name':'Brendan Ryan','basedef':0.1,'start':'2016/05/13'}])#john
+    replacements.append([{'id':460060,'name':'Cliff Pennington','basedef':1.3,'start':'2016/05/09'},{'id':453895,'name':'Brendan Ryan','basedef':0.1,'start':'2016/05/13'}])#john
     replacements.append([])#jesse
     replacements.append([])#dave
     replacements.append([])#martin
-    replacements.append([{'id':608700,'name':'Kevin Plawecki','basedef':1.6,'start':'2016/05/07'}])#tom
+    replacements.append([{'id':608700,'name':'Kevin Plawecki','basedef':2.0,'start':'2016/05/07'}])#tom
     
     # Def values from 5/7, when wb2 started, for def calculation
     basedefs = []
@@ -216,7 +216,7 @@ def getTeams():
     basedefs.append([1.2,-1.4,1.5,5.0,0,-2.6,-1.8,3.2,-3.3])#jesse
     basedefs.append([0.9,2.5,2.0,4.2,3.1,-2.0,-5.3,-3.2,3.6])#dave
     basedefs.append([-0.5,-3.8,0.5,4.0,0.5,-0.8,4.3,-4.5,0.4])#martin
-    basedefs.append([1.0,-3.8,-1.7,-0.2,4.1,-1.0,0.3,-5.6,-2.7])#tom
+    basedefs.append([0.0,-3.8,-1.7,-0.2,4.1,-1.0,0.3,-5.6,-2.7])#tom
     
     # points from month 1
     mtotals = [7,3.5,3.5,5,1,2,6,8]
@@ -386,16 +386,16 @@ def getFullTeamName(teamcode):
                     'tex':'Rangers', 'tor':'Blue Jays', 'was':'Nationals'}
     return teamMapping[teamcode]
     
-def ExtractMDSD(date,g):
+def ExtractMDSD(curdate,g):
     mdsd = []
     sdd = []
     mdd = []
-    urldate = date.replace('_','-')
+    urldate = curdate.replace('_','-')
     # can get both team's results from one page
     team = urllib.quote(getFullTeamName(g[11:14]))
     gamenum = g[-1:]
     dh = "0" if gamenum == "1" else "2"
-    url = "http://www.fangraphs.com/boxscore.aspx?date=%s&team=%s&dh=%s" % (urldate, team, dh)
+    url = "http://www.fangraphs.com/liveboxscore.aspx?date=%s&team=%s&dh=%s&season=2016" % (urldate, team, dh)
     try:
         page = urllib2.urlopen(url)
     except:
@@ -417,7 +417,9 @@ def ExtractMDSD(date,g):
             print "couldn't open", url, newurl
             sys.stdout.flush()
             return [[],[]]
-    tables = soup.find_all("table", id=re.compile('WinsBox1_dg6[ha]p_ctl00'))
+    tables = soup.find_all("table", id=re.compile('LiveBox1_dg6[ha]p_ctl00'))
+    if len(tables) == 0:
+        tables = soup.find_all("table", id=re.compile('WinsBox1_dg6[ha]p_ctl00'))
     for table in tables:
         body = table.find("tbody")
         rows = body.find_all("tr")
@@ -425,10 +427,13 @@ def ExtractMDSD(date,g):
             data = row.find_all("td")
             if data[0].string == "Total":
                 break
-            name = data[0].a.string
+            # sometimes there's no link
+            if data[0].a is None:
+                name = data[0].string
+            else:
+                name = data[0].a.string
             sd = int(data[-2].string)
-            md = int(data[-1].string)
-                
+            md = int(data[-1].string)                
             if sd > 0:
                 sdd.append(name)
             if md > 0:
