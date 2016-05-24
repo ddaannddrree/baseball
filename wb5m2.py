@@ -87,7 +87,7 @@ def getFilledTeams(date1,date2):
         repnames = [r['name'] for r in t['replacements']]
         
         # get current def info from fangraphs using very specific url
-        url = "http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=c,199&season=2016&month=33&season1=2016&ind=0&team=0&rost=0&age=0&filter=&players=6195,4810,3516,8370,5038,10847,1887,7287,3410,10199,11368,9166,9776,639,3531,9847,4949,11477,13624,5000,9218,8203,15429,17182,9272,2434,4940,2151,7870,1908,7435,11493,6310,13611,8347,9077,7739,15676,9810,8090,12161,6184,13110,4727,5361,3256,1744,12282,9368,12916,10155,7859,9241,5209,7007,3473,5417,9777,14162,12701,8252,4106,11205,7304,4314,3269,13836,5343,11579,12856,4062,16376,13510,3395,13807,6073&page=1_80"
+        url = "http://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=0&type=c,199&season=2016&month=33&season1=2016&ind=0&team=0&rost=0&age=0&filter=&players=15676,5417,9777,1887,639,13611,7859,12161,4106,3410,15429,12701,1744,9077,3269,8090,3256,13110,16376,14162,5343,2434,7739,9272,5038,9810,13836,11205,4727,2151,6310,4062,5361,9218,1908,7287,5209,8203,11368,10199,11579,4940,3516,17182,6195,9776,12916,9368,7870,11493,9241,6184,4810,9847,7007,12282,8370,8252,3395,7304,13807,9166,13510,3473,6073,13624,10847,8347,12856,4949,10155,3531,5000,4314,11477,7435,4866&page=1_80"
         soup = BeautifulSoup(urllib2.urlopen(url), "html.parser")
         table = soup.find("table", id="LeaderBoard1_dg1_ctl00")
         body = table.find("tbody")
@@ -198,7 +198,7 @@ def getTeams():
     
     # keep track of replacements here - better in a csv file?
     replacements = []
-    replacements.append([])#brad
+    replacements.append([{'id':502481,'name':'Jarrod Dyson','basedef':3.1,'start':'2016/05/23'}])#brad
     replacements.append([{'id':608070,'name':'Jose Ramirez','basedef':1.9,'start':'2016/05/10'}])#brent
     replacements.append([])#scott
     replacements.append([{'id':460060,'name':'Cliff Pennington','basedef':1.3,'start':'2016/05/09'},{'id':453895,'name':'Brendan Ryan','basedef':0.1,'start':'2016/05/13'}])#john
@@ -483,8 +483,15 @@ def CompileDayGames(curdate):
     md = loadCSV(codehome + 'md.csv')
     maxdate = 0
     if len(sd) > 0:
-        maxdate = max([x['date'] for x in sd])    
-    today = date.today().strftime('%Y_%m_%d')
+        maxdate = max([x['date'] for x in sd]) 
+    
+    # keep it the previous day until 3am, when games will hopefully be over
+    today = time.strftime('%Y_%m_%d %H')
+    if int(today[12:13]) < 3:
+        gamedate = date.today() - timedelta(1)
+        today = gamedate.strftime('%Y_%m_%d')
+    else:
+        today = today[0:10]
         
     gameids = DateGames(curdate)
     for g in gameids:
