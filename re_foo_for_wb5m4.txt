@@ -1,0 +1,1972 @@
+The Jupyter terminal-based Console.
+
+This launches a Console application inside a terminal.
+
+The Console supports various extra features beyond the traditional single-
+process Terminal IPython shell, such as connecting to an existing ipython
+session, via:
+
+    jupyter console --existing
+
+where the previous session could have been created by another ipython console,
+an ipython qtconsole, or by opening an ipython notebook.
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see '--help-all'.
+
+--confirm-exit
+    Set to display confirmation dialog on exit. You can always use 'exit' or 'quit',
+    to force a direct exit without any confirmation.
+--no-confirm-exit
+    Don't prompt the user when exiting. This will terminate the kernel
+    if it is owned by the frontend, and leave it alive if it is external.
+-y
+    Answer yes to any questions instead of prompting.
+--debug
+    set log level to logging.DEBUG (maximize logging output)
+--generate-config
+    generate default config file
+--existing
+    Connect to an existing kernel. If no argument specified, guess most recent
+--kernel=<Unicode> (JupyterConsoleApp.kernel_name)
+    Default: 'python'
+    The name of the default kernel to start.
+--shell=<Integer> (JupyterConsoleApp.shell_port)
+    Default: 0
+    set the shell (ROUTER) port [default: random]
+-f <Unicode> (JupyterConsoleApp.connection_file)
+    Default: ''
+    JSON file in which to store connection info [default: kernel-<pid>.json]
+    This file will contain the IP, ports, and authentication key needed to
+    connect clients to this kernel. By default, this file will be created in the
+    security dir of the current profile, but can be specified by absolute path.
+--ip=<Unicode> (JupyterConsoleApp.ip)
+    Default: u''
+    Set the kernel's IP address [default localhost]. If the IP address is
+    something other than localhost, then Consoles on other machines will be able
+    to connect to the Kernel, so be careful!
+--stdin=<Integer> (JupyterConsoleApp.stdin_port)
+    Default: 0
+    set the stdin (ROUTER) port [default: random]
+--log-level=<Enum> (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL')
+    Set the log level by value or name.
+--existing=<CUnicode> (JupyterConsoleApp.existing)
+    Default: ''
+    Connect to an already running kernel
+--colors=<CaselessStrEnum> (InteractiveShell.colors)
+    Default: 'Linux'
+    Choices: [u'NoColor', u'LightBG', u'Linux']
+    Set the color scheme (NoColor, Linux, or LightBG).
+--iopub=<Integer> (JupyterConsoleApp.iopub_port)
+    Default: 0
+    set the iopub (PUB) port [default: random]
+--ssh=<Unicode> (JupyterConsoleApp.sshserver)
+    Default: ''
+    The SSH server to use to connect to the kernel.
+--hb=<Integer> (JupyterConsoleApp.hb_port)
+    Default: 0
+    set the heartbeat port [default: random]
+--config=<Unicode> (JupyterApp.config_file)
+    Default: u''
+    Full path of a config file.
+--transport=<CaselessStrEnum> (JupyterConsoleApp.transport)
+    Default: 'tcp'
+    Choices: [u'tcp', u'ipc']
+
+To see all available configurables, use `--help-all`
+
+Examples
+--------
+
+    jupyter console # start the ZMQ-based console
+    jupyter console --existing # connect to an existing ipython session
+
+[ZMQTerminalIPythonApp] CRITICAL | Bad config encountered during initialization:
+[ZMQTerminalIPythonApp] CRITICAL | Unrecognized flag: '--profile'
+
+Process Python exited abnormally with code 1
+The Jupyter terminal-based Console.
+
+This launches a Console application inside a terminal.
+
+The Console supports various extra features beyond the traditional single-
+process Terminal IPython shell, such as connecting to an existing ipython
+session, via:
+
+    jupyter console --existing
+
+where the previous session could have been created by another ipython console,
+an ipython qtconsole, or by opening an ipython notebook.
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see '--help-all'.
+
+--confirm-exit
+    Set to display confirmation dialog on exit. You can always use 'exit' or 'quit',
+    to force a direct exit without any confirmation.
+--no-confirm-exit
+    Don't prompt the user when exiting. This will terminate the kernel
+    if it is owned by the frontend, and leave it alive if it is external.
+-y
+    Answer yes to any questions instead of prompting.
+--debug
+    set log level to logging.DEBUG (maximize logging output)
+--generate-config
+    generate default config file
+--existing
+    Connect to an existing kernel. If no argument specified, guess most recent
+--kernel=<Unicode> (JupyterConsoleApp.kernel_name)
+    Default: 'python'
+    The name of the default kernel to start.
+--shell=<Integer> (JupyterConsoleApp.shell_port)
+    Default: 0
+    set the shell (ROUTER) port [default: random]
+-f <Unicode> (JupyterConsoleApp.connection_file)
+    Default: ''
+    JSON file in which to store connection info [default: kernel-<pid>.json]
+    This file will contain the IP, ports, and authentication key needed to
+    connect clients to this kernel. By default, this file will be created in the
+    security dir of the current profile, but can be specified by absolute path.
+--ip=<Unicode> (JupyterConsoleApp.ip)
+    Default: u''
+    Set the kernel's IP address [default localhost]. If the IP address is
+    something other than localhost, then Consoles on other machines will be able
+    to connect to the Kernel, so be careful!
+--stdin=<Integer> (JupyterConsoleApp.stdin_port)
+    Default: 0
+    set the stdin (ROUTER) port [default: random]
+--log-level=<Enum> (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL')
+    Set the log level by value or name.
+--existing=<CUnicode> (JupyterConsoleApp.existing)
+    Default: ''
+    Connect to an already running kernel
+--colors=<CaselessStrEnum> (InteractiveShell.colors)
+    Default: 'Linux'
+    Choices: [u'NoColor', u'LightBG', u'Linux']
+    Set the color scheme (NoColor, Linux, or LightBG).
+--iopub=<Integer> (JupyterConsoleApp.iopub_port)
+    Default: 0
+    set the iopub (PUB) port [default: random]
+--ssh=<Unicode> (JupyterConsoleApp.sshserver)
+    Default: ''
+    The SSH server to use to connect to the kernel.
+--hb=<Integer> (JupyterConsoleApp.hb_port)
+    Default: 0
+    set the heartbeat port [default: random]
+--config=<Unicode> (JupyterApp.config_file)
+    Default: u''
+    Full path of a config file.
+--transport=<CaselessStrEnum> (JupyterConsoleApp.transport)
+    Default: 'tcp'
+    Choices: [u'tcp', u'ipc']
+
+To see all available configurables, use `--help-all`
+
+Examples
+--------
+
+    jupyter console # start the ZMQ-based console
+    jupyter console --existing # connect to an existing ipython session
+
+[ZMQTerminalIPythonApp] CRITICAL | Bad config encountered during initialization:
+[ZMQTerminalIPythonApp] CRITICAL | Unrecognized flag: '--profile'
+
+Process Python exited abnormally with code 1
+The Jupyter terminal-based Console.
+
+This launches a Console application inside a terminal.
+
+The Console supports various extra features beyond the traditional single-
+process Terminal IPython shell, such as connecting to an existing ipython
+session, via:
+
+    jupyter console --existing
+
+where the previous session could have been created by another ipython console,
+an ipython qtconsole, or by opening an ipython notebook.
+
+Options
+-------
+
+Arguments that take values are actually convenience aliases to full
+Configurables, whose aliases are listed on the help line. For more information
+on full configurables, see '--help-all'.
+
+--confirm-exit
+    Set to display confirmation dialog on exit. You can always use 'exit' or 'quit',
+    to force a direct exit without any confirmation.
+--no-confirm-exit
+    Don't prompt the user when exiting. This will terminate the kernel
+    if it is owned by the frontend, and leave it alive if it is external.
+-y
+    Answer yes to any questions instead of prompting.
+--debug
+    set log level to logging.DEBUG (maximize logging output)
+--generate-config
+    generate default config file
+--existing
+    Connect to an existing kernel. If no argument specified, guess most recent
+--kernel=<Unicode> (JupyterConsoleApp.kernel_name)
+    Default: 'python'
+    The name of the default kernel to start.
+--shell=<Integer> (JupyterConsoleApp.shell_port)
+    Default: 0
+    set the shell (ROUTER) port [default: random]
+-f <Unicode> (JupyterConsoleApp.connection_file)
+    Default: ''
+    JSON file in which to store connection info [default: kernel-<pid>.json]
+    This file will contain the IP, ports, and authentication key needed to
+    connect clients to this kernel. By default, this file will be created in the
+    security dir of the current profile, but can be specified by absolute path.
+--ip=<Unicode> (JupyterConsoleApp.ip)
+    Default: u''
+    Set the kernel's IP address [default localhost]. If the IP address is
+    something other than localhost, then Consoles on other machines will be able
+    to connect to the Kernel, so be careful!
+--stdin=<Integer> (JupyterConsoleApp.stdin_port)
+    Default: 0
+    set the stdin (ROUTER) port [default: random]
+--log-level=<Enum> (Application.log_level)
+    Default: 30
+    Choices: (0, 10, 20, 30, 40, 50, 'DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL')
+    Set the log level by value or name.
+--existing=<CUnicode> (JupyterConsoleApp.existing)
+    Default: ''
+    Connect to an already running kernel
+--colors=<CaselessStrEnum> (InteractiveShell.colors)
+    Default: 'Linux'
+    Choices: [u'NoColor', u'LightBG', u'Linux']
+    Set the color scheme (NoColor, Linux, or LightBG).
+--iopub=<Integer> (JupyterConsoleApp.iopub_port)
+    Default: 0
+    set the iopub (PUB) port [default: random]
+--ssh=<Unicode> (JupyterConsoleApp.sshserver)
+    Default: ''
+    The SSH server to use to connect to the kernel.
+--hb=<Integer> (JupyterConsoleApp.hb_port)
+    Default: 0
+    set the heartbeat port [default: random]
+--config=<Unicode> (JupyterApp.config_file)
+    Default: u''
+    Full path of a config file.
+--transport=<CaselessStrEnum> (JupyterConsoleApp.transport)
+    Default: 'tcp'
+    Choices: [u'tcp', u'ipc']
+
+To see all available configurables, use `--help-all`
+
+Examples
+--------
+
+    jupyter console # start the ZMQ-based console
+    jupyter console --existing # connect to an existing ipython session
+
+[ZMQTerminalIPythonApp] CRITICAL | Bad config encountered during initialization:
+[ZMQTerminalIPythonApp] CRITICAL | Unrecognized flag: '--profile'
+
+Process Python exited abnormally with code 1
+Python 2.7.11 |Anaconda 2.5.0 (64-bit)| (default, Dec  6 2015, 18:08:32) 
+Type "copyright", "credits" or "license" for more information.
+
+IPython 4.0.3 -- An enhanced Interactive Python.
+?         -> Introduction and overview of IPython's features.
+%quickref -> Quick reference.
+help      -> Python's own help system.
+object?   -> Details about 'object', use 'object??' for extra details.
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-1-f481ef92b9e8> in <module>()
+----> 1 olors
+
+NameError: name 'olors' is not defined
+
+In [1]: python.el: native completion setup loaded
+
+In [2]: import wb5m4
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+<ipython-input-2-64e0467933e9> in <module>()
+----> 1 import wb5m4
+
+ImportError: No module named wb5m4
+
+In [3]: pwd()
+Out[3]: u'/home/eddie7/emacs'
+
+In [4]: import sys
+
+In [5]: sys.chdir('..')
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-5-1afbb22fa624> in <module>()
+----> 1 sys.chdir('..')
+
+AttributeError: 'module' object has no attribute 'chdir'
+
+In [6]: import os
+
+In [7]: os.chdir('..')
+
+In [8]: pwd()
+Out[8]: u'/home/eddie7'
+
+In [9]: os.chdir('code')
+
+In [10]: pwd()
+Out[10]: u'/home/eddie7/code'
+
+In [11]: import wb5m4
+  File "wb5m4.py", line 136
+    teams.append({'team_name':team_name, 'team':team_name, 'hitting_team_teams':hitting_team_teams[i],'pitching_team_teams',pitching_team_teams[i], 'mscores':mscores[i], 'mtotal':mtotal[i]})
+                                                                                                                           ^
+SyntaxError: invalid syntax
+
+
+In [12]: import wb5m4
+
+In [13]: gs = wb5m4.DateGames('2016_07_01')
+
+In [14]: gs
+Out[14]: 
+[u'2016_07_01_anamlb_bosmlb_1',
+ u'2016_07_01_balmlb_seamlb_1',
+ u'2016_07_01_chamlb_houmlb_1',
+ u'2016_07_01_chnmlb_nynmlb_1',
+ u'2016_07_01_cinmlb_wasmlb_1',
+ u'2016_07_01_clemlb_tormlb_1',
+ u'2016_07_01_colmlb_lanmlb_1',
+ u'2016_07_01_detmlb_tbamlb_1',
+ u'2016_07_01_kcamlb_phimlb_1',
+ u'2016_07_01_miamlb_atlmlb_1',
+ u'2016_07_01_milmlb_slnmlb_1',
+ u'2016_07_01_nyamlb_sdnmlb_1',
+ u'2016_07_01_pitmlb_oakmlb_1',
+ u'2016_07_01_sfnmlb_arimlb_1',
+ u'2016_07_01_texmlb_minmlb_1']
+
+In [15]: jbox = wb5m4.GetGameBoxScoreJson(gs[0])
+
+In [16]: jbox
+Out[16]: 
+{u'copyright': u'Copyright 2016 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt',
+ u'data': {u'boxscore': {u'away_fname': u'Los Angeles Angels',
+   u'away_id': u'108',
+   u'away_loss': u'48',
+   u'away_sname': u'LA Angels',
+   u'away_team_code': u'ana',
+   u'away_wins': u'32',
+   u'batting': [{u'ab': u'36',
+     u'avg': u'.288',
+     u'batter': [{u'a': u'0',
+       u'ab': u'5',
+       u'ao': u'0',
+       u'avg': u'.291',
+       u'bb': u'0',
+       u'bo': u'100',
+       u'cs': u'0',
+       u'd': u'1',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'2',
+       u'h': u'3',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'605141',
+       u'lob': u'2',
+       u'name': u'Betts',
+       u'name_display_first_last': u'Mookie Betts',
+       u'obp': u'.331',
+       u'ops': u'.837',
+       u'po': u'2',
+       u'pos': u'RF',
+       u'r': u'1',
+       u'rbi': u'0',
+       u's_bb': u'21',
+       u's_h': u'102',
+       u's_hr': u'16',
+       u's_r': u'68',
+       u's_rbi': u'54',
+       u's_so': u'51',
+       u'sac': u'0',
+       u'sb': u'1',
+       u'sf': u'0',
+       u'slg': u'.506',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'3',
+       u'ab': u'5',
+       u'ao': u'0',
+       u'avg': u'.303',
+       u'bb': u'0',
+       u'bo': u'200',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'gidp': u'1',
+       u'go': u'4',
+       u'h': u'1',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'456030',
+       u'lob': u'4',
+       u'name': u'Pedroia',
+       u'name_display_first_last': u'Dustin Pedroia',
+       u'obp': u'.368',
+       u'ops': u'.807',
+       u'po': u'3',
+       u'pos': u'2B',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'33',
+       u's_h': u'95',
+       u's_hr': u'7',
+       u's_r': u'50',
+       u's_rbi': u'30',
+       u's_so': u'45',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.439',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.337',
+       u'bb': u'1',
+       u'bo': u'300',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'gidp': u'1',
+       u'go': u'4',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'593428',
+       u'lob': u'3',
+       u'name': u'Bogaerts',
+       u'name_display_first_last': u'Xander Bogaerts',
+       u'obp': u'.390',
+       u'ops': u'.875',
+       u'po': u'0',
+       u'pos': u'SS',
+       u'r': u'0',
+       u'rbi': u'1',
+       u's_bb': u'28',
+       u's_h': u'110',
+       u's_hr': u'9',
+       u's_r': u'59',
+       u's_rbi': u'51',
+       u's_so': u'54',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.485',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.342',
+       u'bb': u'0',
+       u'bo': u'400',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'go': u'1',
+       u'h': u'3',
+       u'hbp': u'0',
+       u'hr': u'1',
+       u'id': u'120074',
+       u'lob': u'0',
+       u'name': u'Ortiz',
+       u'name_display_first_last': u'David Ortiz',
+       u'obp': u'.435',
+       u'ops': u'1.119',
+       u'po': u'0',
+       u'pos': u'DH',
+       u'r': u'1',
+       u'rbi': u'1',
+       u's_bb': u'43',
+       u's_h': u'90',
+       u's_hr': u'19',
+       u's_r': u'37',
+       u's_rbi': u'64',
+       u's_so': u'40',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.684',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.297',
+       u'bb': u'0',
+       u'bo': u'500',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'598265',
+       u'lob': u'3',
+       u'name': u'Bradley Jr.',
+       u'name_display_first_last': u'Jackie Bradley Jr.',
+       u'obp': u'.385',
+       u'ops': u'.943',
+       u'po': u'2',
+       u'pos': u'CF',
+       u'r': u'1',
+       u'rbi': u'0',
+       u's_bb': u'33',
+       u's_h': u'80',
+       u's_hr': u'13',
+       u's_r': u'44',
+       u's_rbi': u'50',
+       u's_so': u'62',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.558',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'1',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.248',
+       u'bb': u'0',
+       u'bo': u'600',
+       u'cs': u'0',
+       u'd': u'2',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'571788',
+       u'lob': u'1',
+       u'name': u'Holt, B',
+       u'name_display_first_last': u'Brock Holt',
+       u'obp': u'.316',
+       u'ops': u'.692',
+       u'po': u'2',
+       u'pos': u'LF',
+       u'r': u'2',
+       u'rbi': u'1',
+       u's_bb': u'12',
+       u's_h': u'29',
+       u's_hr': u'3',
+       u's_r': u'19',
+       u's_rbi': u'20',
+       u's_so': u'23',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.376',
+       u'so': u'2',
+       u't': u'0'},
+      {u'a': u'2',
+       u'ab': u'3',
+       u'ao': u'1',
+       u'avg': u'.270',
+       u'bb': u'1',
+       u'bo': u'700',
+       u'cs': u'0',
+       u'd': u'1',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'1',
+       u'h': u'1',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'543768',
+       u'lob': u'1',
+       u'name': u'Shaw, T',
+       u'name_display_first_last': u'Travis Shaw',
+       u'obp': u'.335',
+       u'ops': u'.785',
+       u'po': u'8',
+       u'pos': u'1B',
+       u'r': u'0',
+       u'rbi': u'1',
+       u's_bb': u'26',
+       u's_h': u'76',
+       u's_hr': u'8',
+       u's_r': u'39',
+       u's_rbi': u'45',
+       u's_so': u'75',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.450',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'3',
+       u'ao': u'0',
+       u'avg': u'.224',
+       u'bb': u'0',
+       u'bo': u'800',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'2',
+       u'hbp': u'1',
+       u'hr': u'0',
+       u'id': u'543877',
+       u'lob': u'0',
+       u'name': u'Vazquez',
+       u'name_display_first_last': u'Christian Vazquez',
+       u'obp': u'.273',
+       u'ops': u'.577',
+       u'po': u'7',
+       u'pos': u'C',
+       u'r': u'0',
+       u'rbi': u'1',
+       u's_bb': u'9',
+       u's_h': u'36',
+       u's_hr': u'1',
+       u's_r': u'21',
+       u's_rbi': u'12',
+       u's_so': u'37',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.304',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'3',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.275',
+       u'bb': u'0',
+       u'bo': u'900',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'593523',
+       u'lob': u'3',
+       u'name': u'Hernandez, M',
+       u'name_display_first_last': u'Marco Hernandez',
+       u'obp': u'.341',
+       u'ops': u'.716',
+       u'po': u'1',
+       u'pos': u'3B',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'4',
+       u's_h': u'11',
+       u's_hr': u'1',
+       u's_r': u'7',
+       u's_rbi': u'5',
+       u's_so': u'9',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.375',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'1',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'453214',
+       u'lob': u'0',
+       u'name': u'Wright, S',
+       u'name_display_first_last': u'Steven Wright',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'2',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'2',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'598264',
+       u'lob': u'0',
+       u'name': u'Barnes',
+       u'name_display_first_last': u'Matt Barnes',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'547749',
+       u'lob': u'0',
+       u'name': u'Tazawa',
+       u'name_display_first_last': u'Junichi Tazawa',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'1',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'493157',
+       u'lob': u'0',
+       u'name': u'Uehara',
+       u'name_display_first_last': u'Koji Uehara',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'518886',
+       u'lob': u'0',
+       u'name': u'Kimbrel',
+       u'name_display_first_last': u'Craig Kimbrel',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'}],
+     u'bb': u'2',
+     u'd': u'4',
+     u'da': u'13',
+     u'h': u'16',
+     u'hr': u'1',
+     u'lob': u'17',
+     u'obp': u'.356',
+     u'ops': u'.825',
+     u'po': u'27',
+     u'r': u'5',
+     u'rbi': u'5',
+     u'slg': u'.469',
+     u'so': u'7',
+     u't': u'0',
+     u'team_flag': u'home',
+     u'text_data': u'\n         <doubles>Betts (19, Chacin); Holt, B 2 (6, Chacin, Chacin); Shaw, T (23, Chacin).</doubles><br/>\n         <home_runs>Ortiz (19, 5th inning off Chacin, 0 on, 2 out).</home_runs><br/>\n         <total_bases>Shaw, T 2; Bradley Jr. 2; Ortiz 6; Vazquez 2; Pedroia; Betts 4; Holt, B 4; Hernandez, M 2.</total_bases><br/>\n         <rbi>Bogaerts (51); Shaw, T (45); Ortiz (64); Holt, B (20); Vazquez (12).</rbi><br/>\n         <two_out_rbi>Ortiz; Holt, B; Vazquez.</two_out_rbi><br/>\n         <risp_lob_two_out>Bradley Jr.; Hernandez, M; Bogaerts 2.</risp_lob_two_out><br/>\n         <grounded_into_dp>Pedroia; Bogaerts.</grounded_into_dp><br/>\n         <team_risp>2-for-9.</team_risp>\n         <team_lob>10.</team_lob>\n         <stolen_bases>Betts (13, 2nd base off Ramirez, JC/Bandy).</stolen_bases><br/>\n         <picked_off>Shaw, T (2nd base by Chacin).</picked_off><br/>\n         <outfield_assists>Holt, B (Cron at 2nd base).</outfield_assists><br/>\n         <double_plays>2 (Hernandez, M-Shaw, T; Hernandez, M-Pedroia-Shaw, T).</double_plays><br/><br/>',
+     u'text_data_es': u'\n         <doubles>Betts (19, Chacin); Holt, B 2 (6, Chacin, Chacin); Shaw, T (23, Chacin).</doubles><br/>\n         <home_runs>Ortiz (19, 5th entrada ante Chacin, 0 en base, 2 out).</home_runs><br/>\n         <total_bases>Shaw, T 2; Bradley Jr. 2; Ortiz 6; Vazquez 2; Pedroia; Betts 4; Holt, B 4; Hernandez, M 2.</total_bases><br/>\n         <rbi>Bogaerts (51); Shaw, T (45); Ortiz (64); Holt, B (20); Vazquez (12).</rbi><br/>\n         <two_out_rbi>Ortiz; Holt, B; Vazquez.</two_out_rbi><br/>\n         <risp_lob_two_out>Bradley Jr.; Hernandez, M; Bogaerts 2.</risp_lob_two_out><br/>\n         <grounded_into_dp>Pedroia; Bogaerts.</grounded_into_dp><br/>\n         <team_risp>\n            \t\t\t\t\t\t\tde 2-9.\n         </team_risp>\n         <team_lob>10.</team_lob>\n         <stolen_bases>Betts (13, 2nd base a Ramirez, JC/Bandy).</stolen_bases><br/>\n         <picked_off>Shaw, T (2nd base por Chacin).</picked_off><br/>\n         <outfield_assists>Holt, B (Cron en 2nd base).</outfield_assists><br/>\n         <double_plays>2 (Hernandez, M-Shaw, T; Hernandez, M-Pedroia-Shaw, T).</double_plays><br/><br/>'},
+    {u'ab': u'36',
+     u'avg': u'.263',
+     u'batter': [{u'a': u'1',
+       u'ab': u'5',
+       u'ao': u'1',
+       u'avg': u'.286',
+       u'bb': u'0',
+       u'bo': u'100',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'2',
+       u'h': u'1',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'594777',
+       u'lob': u'3',
+       u'name': u'Calhoun',
+       u'name_display_first_last': u'Kole Calhoun',
+       u'obp': u'.355',
+       u'ops': u'.802',
+       u'po': u'1',
+       u'pos': u'RF',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'30',
+       u's_h': u'87',
+       u's_hr': u'10',
+       u's_r': u'45',
+       u's_rbi': u'42',
+       u's_so': u'62',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.447',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.325',
+       u'bb': u'1',
+       u'bo': u'200',
+       u'cs': u'0',
+       u'd': u'1',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'545361',
+       u'lob': u'2',
+       u'name': u'Trout',
+       u'name_display_first_last': u'Mike Trout',
+       u'obp': u'.424',
+       u'ops': u'1.000',
+       u'po': u'0',
+       u'pos': u'CF',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'51',
+       u's_h': u'96',
+       u's_hr': u'17',
+       u's_r': u'56',
+       u's_rbi': u'53',
+       u's_so': u'63',
+       u'sac': u'0',
+       u'sb': u'1',
+       u'sf': u'0',
+       u'slg': u'.576',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'3',
+       u'ao': u'2',
+       u'avg': u'.248',
+       u'bb': u'2',
+       u'bo': u'300',
+       u'cs': u'0',
+       u'd': u'1',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'1',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'405395',
+       u'lob': u'2',
+       u'name': u'Pujols',
+       u'name_display_first_last': u'Albert Pujols',
+       u'obp': u'.325',
+       u'ops': u'.744',
+       u'po': u'0',
+       u'pos': u'DH',
+       u'r': u'1',
+       u'rbi': u'0',
+       u's_bb': u'34',
+       u's_h': u'74',
+       u's_hr': u'14',
+       u's_r': u'31',
+       u's_rbi': u'50',
+       u's_so': u'38',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.419',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'2',
+       u'ab': u'3',
+       u'ao': u'1',
+       u'avg': u'.241',
+       u'bb': u'1',
+       u'bo': u'400',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'gidp': u'1',
+       u'go': u'2',
+       u'h': u'0',
+       u'hbp': u'1',
+       u'hr': u'0',
+       u'id': u'527043',
+       u'lob': u'5',
+       u'name': u'Marte, J',
+       u'name_display_first_last': u'Jefry Marte',
+       u'obp': u'.287',
+       u'ops': u'.712',
+       u'po': u'0',
+       u'pos': u'3B',
+       u'r': u'1',
+       u'rbi': u'0',
+       u's_bb': u'5',
+       u's_h': u'21',
+       u's_hr': u'4',
+       u's_r': u'9',
+       u's_rbi': u'12',
+       u's_so': u'24',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.425',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.237',
+       u'bb': u'1',
+       u'bo': u'500',
+       u'cs': u'0',
+       u'd': u'1',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'537953',
+       u'lob': u'2',
+       u'name': u'Nava',
+       u'name_display_first_last': u'Daniel Nava',
+       u'obp': u'.301',
+       u'ops': u'.617',
+       u'po': u'0',
+       u'pos': u'LF',
+       u'r': u'1',
+       u'rbi': u'0',
+       u's_bb': u'4',
+       u's_h': u'18',
+       u's_hr': u'1',
+       u's_r': u'7',
+       u's_rbi': u'6',
+       u's_so': u'19',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.316',
+       u'so': u'1',
+       u't': u'0'},
+      {u'a': u'1',
+       u'ab': u'5',
+       u'ao': u'2',
+       u'avg': u'.268',
+       u'bb': u'0',
+       u'bo': u'600',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'1',
+       u'id': u'543068',
+       u'lob': u'3',
+       u'name': u'Cron',
+       u'name_display_first_last': u'C.J. Cron',
+       u'obp': u'.324',
+       u'ops': u'.753',
+       u'po': u'11',
+       u'pos': u'1B',
+       u'r': u'1',
+       u'rbi': u'4',
+       u's_bb': u'16',
+       u's_h': u'62',
+       u's_hr': u'7',
+       u's_r': u'26',
+       u's_rbi': u'37',
+       u's_so': u'38',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.429',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'6',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.272',
+       u'bb': u'0',
+       u'bo': u'700',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'2',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'543213',
+       u'lob': u'0',
+       u'name': u'Giavotella',
+       u'name_display_first_last': u'Johnny Giavotella',
+       u'obp': u'.294',
+       u'ops': u'.703',
+       u'po': u'2',
+       u'pos': u'2B',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'9',
+       u's_h': u'70',
+       u's_hr': u'6',
+       u's_r': u'31',
+       u's_rbi': u'26',
+       u's_so': u'29',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.409',
+       u'so': u'0',
+       u't': u'1'},
+      {u'a': u'0',
+       u'ab': u'4',
+       u'ao': u'0',
+       u'avg': u'.186',
+       u'bb': u'0',
+       u'bo': u'800',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'gidp': u'1',
+       u'go': u'3',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'542208',
+       u'lob': u'3',
+       u'name': u'Perez, C',
+       u'name_display_first_last': u'Carlos Perez',
+       u'obp': u'.220',
+       u'ops': u'.511',
+       u'po': u'6',
+       u'pos': u'C',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'8',
+       u's_h': u'32',
+       u's_hr': u'3',
+       u's_r': u'14',
+       u's_rbi': u'16',
+       u's_so': u'34',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.291',
+       u'so': u'2',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.232',
+       u'bb': u'0',
+       u'bo': u'801',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'453203',
+       u'lob': u'0',
+       u'name': u'Robinson, S',
+       u'name_display_first_last': u'Shane Robinson',
+       u'note': u'1-',
+       u'obp': u'.338',
+       u'ops': u'.624',
+       u'po': u'0',
+       u'pos': u'PR',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'9',
+       u's_h': u'13',
+       u's_hr': u'1',
+       u's_r': u'13',
+       u's_rbi': u'5',
+       u's_so': u'13',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.286',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.265',
+       u'bb': u'0',
+       u'bo': u'802',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'542908',
+       u'lob': u'0',
+       u'name': u'Bandy',
+       u'name_display_first_last': u'Jett Bandy',
+       u'obp': u'.283',
+       u'ops': u'.712',
+       u'po': u'1',
+       u'pos': u'C',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'2',
+       u's_h': u'13',
+       u's_hr': u'2',
+       u's_r': u'6',
+       u's_rbi': u'10',
+       u's_so': u'6',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.429',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'3',
+       u'ab': u'4',
+       u'ao': u'1',
+       u'avg': u'.234',
+       u'bb': u'0',
+       u'bo': u'900',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'go': u'1',
+       u'h': u'2',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'592743',
+       u'lob': u'0',
+       u'name': u'Simmons, A',
+       u'name_display_first_last': u'Andrelton Simmons',
+       u'obp': u'.263',
+       u'ops': u'.562',
+       u'po': u'3',
+       u'pos': u'SS',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'7',
+       u's_h': u'39',
+       u's_hr': u'1',
+       u's_r': u'11',
+       u's_rbi': u'11',
+       u's_so': u'12',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.299',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'1',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.300',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'1.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'468504',
+       u'lob': u'0',
+       u'name': u'Chacin',
+       u'name_display_first_last': u'Jhoulys Chacin',
+       u'obp': u'.300',
+       u'ops': u'.600',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'3',
+       u's_hr': u'0',
+       u's_r': u'1',
+       u's_rbi': u'1',
+       u's_so': u'1',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.300',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'500610',
+       u'lob': u'0',
+       u'name': u'Guerra, D',
+       u'name_display_first_last': u'Deolis Guerra',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'501925',
+       u'lob': u'0',
+       u'name': u'Smith, J',
+       u'name_display_first_last': u'Joe Smith',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'},
+      {u'a': u'0',
+       u'ab': u'0',
+       u'ao': u'0',
+       u'avg': u'.000',
+       u'bb': u'0',
+       u'cs': u'0',
+       u'd': u'0',
+       u'e': u'0',
+       u'fldg': u'.000',
+       u'h': u'0',
+       u'hbp': u'0',
+       u'hr': u'0',
+       u'id': u'500724',
+       u'lob': u'0',
+       u'name': u'Ramirez, JC',
+       u'name_display_first_last': u'JC Ramirez',
+       u'obp': u'.000',
+       u'ops': u'.000',
+       u'po': u'0',
+       u'pos': u'P',
+       u'r': u'0',
+       u'rbi': u'0',
+       u's_bb': u'0',
+       u's_h': u'0',
+       u's_hr': u'0',
+       u's_r': u'0',
+       u's_rbi': u'0',
+       u's_so': u'0',
+       u'sac': u'0',
+       u'sb': u'0',
+       u'sf': u'0',
+       u'slg': u'.000',
+       u'so': u'0',
+       u't': u'0'}],
+     u'bb': u'5',
+     u'd': u'3',
+     u'da': u'14',
+     u'h': u'12',
+     u'hr': u'1',
+     u'lob': u'20',
+     u'note': u'\n         <pinch_runners>1-Ran for Perez, C in the 8th. </pinch_runners>',
+     u'note_es': u'\n         <pinch_runners>1-Corri\xf3 por Perez, C en la 8th. </pinch_runners>',
+     u'obp': u'.322',
+     u'ops': u'.725',
+     u'po': u'24',
+     u'r': u'4',
+     u'rbi': u'4',
+     u'slg': u'.403',
+     u'so': u'6',
+     u't': u'1',
+     u'team_flag': u'away',
+     u'text_data': u'\n         <doubles>Trout (19, Wright, S); Pujols (9, Wright, S); Nava (3, Kimbrel).</doubles><br/>\n         <triples>Giavotella (1, Uehara).</triples><br/>\n         <home_runs>Cron (7, 6th inning off Wright, S, 3 on, 0 out).</home_runs><br/>\n         <total_bases>Trout 3; Simmons, A 2; Giavotella 4; Cron 5; Calhoun; Pujols 2; Nava 3.</total_bases><br/>\n         <rbi>Cron 4 (37).</rbi><br/>\n         <risp_lob_two_out>Marte, J; Trout; Nava; Calhoun; Cron 2.</risp_lob_two_out><br/>\n         <grounded_into_dp>Marte, J; Perez, C.</grounded_into_dp><br/>\n         <team_risp>1-for-9.</team_risp>\n         <team_lob>11.</team_lob>\n         <stolen_bases>Trout (12, 2nd base off Tazawa/Vazquez).</stolen_bases><br/>\n         <outfield_assists>Calhoun (Betts at 2nd base).</outfield_assists><br/>\n         <double_plays>2 (Simmons, A-Giavotella-Cron; Marte, J-Giavotella-Cron).</double_plays><br/>\n         <pickoffs>Chacin (Shaw, T at 2nd base).</pickoffs><br/><br/>',
+     u'text_data_es': u'\n         <doubles>Trout (19, Wright, S); Pujols (9, Wright, S); Nava (3, Kimbrel).</doubles><br/>\n         <triples>Giavotella (1, Uehara).</triples><br/>\n         <home_runs>Cron (7, 6th entrada ante Wright, S, 3 en base, 0 out).</home_runs><br/>\n         <total_bases>Trout 3; Simmons, A 2; Giavotella 4; Cron 5; Calhoun; Pujols 2; Nava 3.</total_bases><br/>\n         <rbi>Cron 4 (37).</rbi><br/>\n         <risp_lob_two_out>Marte, J; Trout; Nava; Calhoun; Cron 2.</risp_lob_two_out><br/>\n         <grounded_into_dp>Marte, J; Perez, C.</grounded_into_dp><br/>\n         <team_risp>\n            \t\t\t\t\t\t\tde 1-9.\n         </team_risp>\n         <team_lob>11.</team_lob>\n         <stolen_bases>Trout (12, 2nd base a Tazawa/Vazquez).</stolen_bases><br/>\n         <outfield_assists>Calhoun (Betts en 2nd base).</outfield_assists><br/>\n         <double_plays>2 (Simmons, A-Giavotella-Cron; Marte, J-Giavotella-Cron).</double_plays><br/>\n         <pickoffs>Chacin (Shaw, T en 2nd base).</pickoffs><br/><br/>'}],
+   u'date': u'July 1, 2016',
+   u'game_id': u'2016/07/01/anamlb-bosmlb-1',
+   u'game_info': u'\n      <relief_no_out>Wright, S pitched to 4 batters in the 6th.</relief_no_out><br/><br/>\n      <game_score>Chacin 23; Wright, S 33.</game_score><br/>\n      <wild_pitches>Wright, S.</wild_pitches><br/>\n      <intentional_walks>Shaw, T (by Chacin).</intentional_walks><br/>\n      <hit_by_pitch>Marte, J (by Wright, S); Vazquez (by Chacin).</hit_by_pitch><br/>\n      <pitches_to_strikes>Chacin 97-61; Guerra, D 6-3; Smith, J 11-9; Ramirez, JC 34-23; Wright, S 93-53; Barnes 20-11; Tazawa 31-18; Uehara 23-16; Kimbrel 15-9.</pitches_to_strikes><br/>\n      <groundouts_to_flyouts>Chacin 6-1; Guerra, D 0-0; Smith, J 2-0; Ramirez, JC 4-0; Wright, S 7-2; Barnes 2-0; Tazawa 0-1; Uehara 1-1; Kimbrel 1-1.</groundouts_to_flyouts><br/>\n      <batters_faced>Chacin 26; Guerra, D 1; Smith, J 3; Ramirez, JC 9; Wright, S 24; Barnes 3; Tazawa 5; Uehara 5; Kimbrel 5.</batters_faced><br/>\n      <inherited_runners_scored>Guerra, D 2-0.</inherited_runners_scored><br/>\n      <umpires>\n         <umpire id="483630" position="HP" name="John Tumpane"></umpire>\n         <umpire id="427361" position="1B" name="Paul Nauert"></umpire>\n         <umpire id="427533" position="2B" name="Mark Wegner"></umpire>\n         <umpire id="484198" position="3B" name="Alan Porter"></umpire>\n      </umpires>\n      <weather>75 degrees, cloudy</weather>\n      <wind>12 mph, Out to LF</wind>\n      <weather>7:09 PM</weather>\n      <time>3:36 (1:35 delay)</time>\n      <attendance>37,117</attendance>\n      <wind>Fenway Park</wind>\n      <wind>July 1, 2016</wind>',
+   u'game_info_es': u'\n      <relief_no_out>Wright, S enfrent\xf3 4 bateadores en la 6th.</relief_no_out><br/><br/>\n      <game_score>Chacin 23; Wright, S 33.</game_score><br/>\n      <wild_pitches>Wright, S.</wild_pitches><br/>\n      <intentional_walks>Shaw, T (por Chacin).</intentional_walks><br/>\n      <hit_by_pitch>Marte, J (por Wright, S); Vazquez (por Chacin).</hit_by_pitch><br/>\n      <pitches_to_strikes>Chacin 97-61; Guerra, D 6-3; Smith, J 11-9; Ramirez, JC 34-23; Wright, S 93-53; Barnes 20-11; Tazawa 31-18; Uehara 23-16; Kimbrel 15-9.</pitches_to_strikes><br/>\n      <groundouts_to_flyouts>Chacin 6-1; Guerra, D 0-0; Smith, J 2-0; Ramirez, JC 4-0; Wright, S 7-2; Barnes 2-0; Tazawa 0-1; Uehara 1-1; Kimbrel 1-1.</groundouts_to_flyouts><br/>\n      <batters_faced>Chacin 26; Guerra, D 1; Smith, J 3; Ramirez, JC 9; Wright, S 24; Barnes 3; Tazawa 5; Uehara 5; Kimbrel 5.</batters_faced><br/>\n      <inherited_runners_scored>Guerra, D 2-0.</inherited_runners_scored><br/>\n      <umpires>\n         <umpire id="483630" position="HP" name="John Tumpane"></umpire>\n         <umpire id="427361" position="1B" name="Paul Nauert"></umpire>\n         <umpire id="427533" position="2B" name="Mark Wegner"></umpire>\n         <umpire id="484198" position="3B" name="Alan Porter"></umpire>\n      </umpires>\n      <weather>75 degrees, cloudy</weather>\n      <wind>12 mph, Out to LF</wind>\n      <weather>7:09 PM</weather>\n      <time>3:36 (1:35 delay)</time>\n      <attendance>37,117</attendance>\n      <wind>Fenway Park</wind>\n      <wind>July 1, 2016</wind>',
+   u'game_pk': u'448065',
+   u'home_fname': u'Boston Red Sox',
+   u'home_id': u'111',
+   u'home_loss': u'36',
+   u'home_sname': u'Boston',
+   u'home_sport_code': u'mlb',
+   u'home_team_code': u'bos',
+   u'home_wins': u'43',
+   u'linescore': {u'away_team_errors': u'0',
+    u'away_team_hits': u'12',
+    u'away_team_runs': u'4',
+    u'home_team_errors': u'0',
+    u'home_team_hits': u'16',
+    u'home_team_runs': u'5',
+    u'inning_line_score': [{u'away': u'0', u'home': u'1', u'inning': u'1'},
+     {u'away': u'0', u'home': u'0', u'inning': u'2'},
+     {u'away': u'0', u'home': u'0', u'inning': u'3'},
+     {u'away': u'0', u'home': u'1', u'inning': u'4'},
+     {u'away': u'0', u'home': u'3', u'inning': u'5'},
+     {u'away': u'4', u'home': u'0', u'inning': u'6'},
+     {u'away': u'0', u'home': u'0', u'inning': u'7'},
+     {u'away': u'0', u'home': u'0', u'inning': u'8'},
+     {u'away': u'0', u'home': u'x', u'inning': u'9'}]},
+   u'pitching': [{u'bb': u'2',
+     u'bf': u'39',
+     u'er': u'5',
+     u'era': u'4.58',
+     u'h': u'16',
+     u'hr': u'1',
+     u'out': u'24',
+     u'pitcher': [{u'bb': u'2',
+       u'bf': u'26',
+       u'bs': u'0',
+       u'er': u'5',
+       u'era': u'5.87',
+       u'game_score': u'23',
+       u'h': u'12',
+       u'hld': u'0',
+       u'hr': u'1',
+       u'id': u'468504',
+       u'l': u'7',
+       u'loss': u'true',
+       u'name': u'Chacin',
+       u'name_display_first_last': u'Jhoulys Chacin',
+       u'note': u'(L, 3-7)',
+       u'np': u'97',
+       u'out': u'14',
+       u'pos': u'P',
+       u'r': u'5',
+       u's': u'61',
+       u's_bb': u'33',
+       u's_er': u'52',
+       u's_h': u'93',
+       u's_ip': u'79.2',
+       u's_r': u'54',
+       u's_so': u'58',
+       u'so': u'4',
+       u'sv': u'0',
+       u'w': u'3'},
+      {u'bb': u'0',
+       u'bf': u'1',
+       u'bs': u'1',
+       u'er': u'0',
+       u'era': u'2.57',
+       u'game_score': u'43',
+       u'h': u'0',
+       u'hld': u'0',
+       u'hr': u'0',
+       u'id': u'500610',
+       u'l': u'0',
+       u'name': u'Guerra, D',
+       u'name_display_first_last': u'Deolis Guerra',
+       u'np': u'6',
+       u'out': u'1',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'3',
+       u's_bb': u'0',
+       u's_er': u'6',
+       u's_h': u'15',
+       u's_ip': u'21.0',
+       u's_r': u'6',
+       u's_so': u'18',
+       u'so': u'1',
+       u'sv': u'0',
+       u'w': u'1'},
+      {u'bb': u'0',
+       u'bf': u'3',
+       u'bs': u'2',
+       u'er': u'0',
+       u'era': u'3.76',
+       u'game_score': u'44',
+       u'h': u'1',
+       u'hld': u'3',
+       u'hr': u'0',
+       u'id': u'501925',
+       u'l': u'3',
+       u'name': u'Smith, J',
+       u'name_display_first_last': u'Joe Smith',
+       u'np': u'11',
+       u'out': u'3',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'9',
+       u's_bb': u'11',
+       u's_er': u'11',
+       u's_h': u'21',
+       u's_ip': u'26.1',
+       u's_r': u'11',
+       u's_so': u'17',
+       u'so': u'0',
+       u'sv': u'6',
+       u'w': u'1'},
+      {u'bb': u'0',
+       u'bf': u'9',
+       u'bs': u'3',
+       u'er': u'0',
+       u'era': u'6.14',
+       u'game_score': u'48',
+       u'h': u'3',
+       u'hld': u'1',
+       u'hr': u'0',
+       u'id': u'500724',
+       u'l': u'3',
+       u'name': u'Ramirez, JC',
+       u'name_display_first_last': u'JC Ramirez',
+       u'np': u'34',
+       u'out': u'6',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'23',
+       u's_bb': u'10',
+       u's_er': u'25',
+       u's_h': u'41',
+       u's_ip': u'36.2',
+       u's_r': u'26',
+       u's_so': u'34',
+       u'so': u'2',
+       u'sv': u'1',
+       u'w': u'1'}],
+     u'r': u'5',
+     u'so': u'7',
+     u'team_flag': u'away'},
+    {u'bb': u'5',
+     u'bf': u'42',
+     u'er': u'4',
+     u'era': u'4.36',
+     u'h': u'12',
+     u'hr': u'1',
+     u'out': u'27',
+     u'pitcher': [{u'bb': u'3',
+       u'bf': u'24',
+       u'bs': u'0',
+       u'er': u'4',
+       u'era': u'2.42',
+       u'game_score': u'33',
+       u'h': u'8',
+       u'hld': u'0',
+       u'hr': u'1',
+       u'id': u'453214',
+       u'l': u'5',
+       u'name': u'Wright, S',
+       u'name_display_first_last': u'Steven Wright',
+       u'note': u'(W, 9-5)',
+       u'np': u'93',
+       u'out': u'15',
+       u'pos': u'P',
+       u'r': u'4',
+       u's': u'53',
+       u's_bb': u'42',
+       u's_er': u'29',
+       u's_h': u'86',
+       u's_ip': u'108.0',
+       u's_r': u'43',
+       u's_so': u'87',
+       u'so': u'3',
+       u'sv': u'0',
+       u'w': u'9',
+       u'win': u'true'},
+      {u'bb': u'0',
+       u'bf': u'3',
+       u'bs': u'0',
+       u'er': u'0',
+       u'era': u'3.05',
+       u'game_score': u'47',
+       u'h': u'0',
+       u'hld': u'4',
+       u'hr': u'0',
+       u'id': u'598264',
+       u'l': u'3',
+       u'name': u'Barnes',
+       u'name_display_first_last': u'Matt Barnes',
+       u'note': u'(H, 4)',
+       u'np': u'20',
+       u'out': u'3',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'11',
+       u's_bb': u'18',
+       u's_er': u'13',
+       u's_h': u'33',
+       u's_ip': u'38.1',
+       u's_r': u'15',
+       u's_so': u'38',
+       u'so': u'1',
+       u'sv': u'0',
+       u'w': u'2'},
+      {u'bb': u'1',
+       u'bf': u'5',
+       u'bs': u'1',
+       u'er': u'0',
+       u'era': u'3.16',
+       u'game_score': u'43',
+       u'h': u'1',
+       u'hld': u'14',
+       u'hr': u'0',
+       u'id': u'547749',
+       u'l': u'1',
+       u'name': u'Tazawa',
+       u'name_display_first_last': u'Junichi Tazawa',
+       u'note': u'(H, 14)',
+       u'np': u'31',
+       u'out': u'3',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'18',
+       u's_bb': u'8',
+       u's_er': u'11',
+       u's_h': u'23',
+       u's_ip': u'31.1',
+       u's_r': u'11',
+       u's_so': u'37',
+       u'so': u'1',
+       u'sv': u'0',
+       u'w': u'1'},
+      {u'bb': u'0',
+       u'bf': u'5',
+       u'bs': u'2',
+       u'er': u'0',
+       u'era': u'4.75',
+       u'game_score': u'43',
+       u'h': u'2',
+       u'hld': u'12',
+       u'hr': u'0',
+       u'id': u'493157',
+       u'l': u'3',
+       u'name': u'Uehara',
+       u'name_display_first_last': u'Koji Uehara',
+       u'note': u'(H, 12)',
+       u'np': u'23',
+       u'out': u'3',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'16',
+       u's_bb': u'9',
+       u's_er': u'16',
+       u's_h': u'24',
+       u's_ip': u'30.1',
+       u's_r': u'16',
+       u's_so': u'45',
+       u'so': u'1',
+       u'sv': u'2',
+       u'w': u'2'},
+      {u'bb': u'1',
+       u'bf': u'5',
+       u'bs': u'2',
+       u'er': u'0',
+       u'era': u'2.53',
+       u'game_score': u'42',
+       u'h': u'1',
+       u'hld': u'0',
+       u'hr': u'0',
+       u'id': u'518886',
+       u'l': u'3',
+       u'name': u'Kimbrel',
+       u'name_display_first_last': u'Craig Kimbrel',
+       u'note': u'(S, 17)',
+       u'np': u'15',
+       u'out': u'3',
+       u'pos': u'P',
+       u'r': u'0',
+       u's': u'9',
+       u's_bb': u'12',
+       u's_er': u'9',
+       u's_h': u'18',
+       u's_ip': u'32.0',
+       u's_r': u'10',
+       u's_so': u'48',
+       u'save': u'true',
+       u'so': u'0',
+       u'sv': u'17',
+       u'w': u'1'}],
+     u'r': u'4',
+     u'so': u'6',
+     u'team_flag': u'home'}],
+   u'status_ind': u'F',
+   u'venue_id': u'3',
+   u'venue_name': u'Fenway Park'}},
+ u'subject': u'boxscore'}
+
+In [17]: ginfo = jbox['data']['boxscore']['game_info']
+
+In [18]: ginfo
+Out[18]: u'\n      <relief_no_out>Wright, S pitched to 4 batters in the 6th.</relief_no_out><br/><br/>\n      <game_score>Chacin 23; Wright, S 33.</game_score><br/>\n      <wild_pitches>Wright, S.</wild_pitches><br/>\n      <intentional_walks>Shaw, T (by Chacin).</intentional_walks><br/>\n      <hit_by_pitch>Marte, J (by Wright, S); Vazquez (by Chacin).</hit_by_pitch><br/>\n      <pitches_to_strikes>Chacin 97-61; Guerra, D 6-3; Smith, J 11-9; Ramirez, JC 34-23; Wright, S 93-53; Barnes 20-11; Tazawa 31-18; Uehara 23-16; Kimbrel 15-9.</pitches_to_strikes><br/>\n      <groundouts_to_flyouts>Chacin 6-1; Guerra, D 0-0; Smith, J 2-0; Ramirez, JC 4-0; Wright, S 7-2; Barnes 2-0; Tazawa 0-1; Uehara 1-1; Kimbrel 1-1.</groundouts_to_flyouts><br/>\n      <batters_faced>Chacin 26; Guerra, D 1; Smith, J 3; Ramirez, JC 9; Wright, S 24; Barnes 3; Tazawa 5; Uehara 5; Kimbrel 5.</batters_faced><br/>\n      <inherited_runners_scored>Guerra, D 2-0.</inherited_runners_scored><br/>\n      <umpires>\n         <umpire id="483630" position="HP" name="John Tumpane"></umpire>\n         <umpire id="427361" position="1B" name="Paul Nauert"></umpire>\n         <umpire id="427533" position="2B" name="Mark Wegner"></umpire>\n         <umpire id="484198" position="3B" name="Alan Porter"></umpire>\n      </umpires>\n      <weather>75 degrees, cloudy</weather>\n      <wind>12 mph, Out to LF</wind>\n      <weather>7:09 PM</weather>\n      <time>3:36 (1:35 delay)</time>\n      <attendance>37,117</attendance>\n      <wind>Fenway Park</wind>\n      <wind>July 1, 2016</wind>'
+
+In [19]: soup = BeautifulSoup(ginfo)
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-19-52db3ae59b9b> in <module>()
+----> 1 soup = BeautifulSoup(ginfo)
+
+NameError: name 'BeautifulSoup' is not defined
+
+In [20]: from bs4 import BeautifulSoup
+
+In [21]: soup = BeautifulSoup(ginfo)
+/home/eddie7/anaconda2/lib/python2.7/site-packages/bs4/__init__.py:166: UserWarning: No parser was explicitly specified, so I'm using the best available HTML parser for this system ("lxml"). This usually isn't a problem, but if you run this code on another system, or in a different virtual environment, it may use a different parser and behave differently.
+
+To get rid of this warning, change this:
+
+ BeautifulSoup([your markup])
+
+to this:
+
+ BeautifulSoup([your markup], "lxml")
+
+  markup_type=markup_type))
+
+In [22]: soup
+Out[22]: <html><body><relief_no_out>Wright, S pitched to 4 batters in the 6th.</relief_no_out><br/><br/>\n<game_score>Chacin 23; Wright, S 33.</game_score><br/>\n<wild_pitches>Wright, S.</wild_pitches><br/>\n<intentional_walks>Shaw, T (by Chacin).</intentional_walks><br/>\n<hit_by_pitch>Marte, J (by Wright, S); Vazquez (by Chacin).</hit_by_pitch><br/>\n<pitches_to_strikes>Chacin 97-61; Guerra, D 6-3; Smith, J 11-9; Ramirez, JC 34-23; Wright, S 93-53; Barnes 20-11; Tazawa 31-18; Uehara 23-16; Kimbrel 15-9.</pitches_to_strikes><br/>\n<groundouts_to_flyouts>Chacin 6-1; Guerra, D 0-0; Smith, J 2-0; Ramirez, JC 4-0; Wright, S 7-2; Barnes 2-0; Tazawa 0-1; Uehara 1-1; Kimbrel 1-1.</groundouts_to_flyouts><br/>\n<batters_faced>Chacin 26; Guerra, D 1; Smith, J 3; Ramirez, JC 9; Wright, S 24; Barnes 3; Tazawa 5; Uehara 5; Kimbrel 5.</batters_faced><br/>\n<inherited_runners_scored>Guerra, D 2-0.</inherited_runners_scored><br/>\n<umpires>\n<umpire id="483630" name="John Tumpane" position="HP"></umpire>\n<umpire id="427361" name="Paul Nauert" position="1B"></umpire>\n<umpire id="427533" name="Mark Wegner" position="2B"></umpire>\n<umpire id="484198" name="Alan Porter" position="3B"></umpire>\n</umpires>\n<weather>75 degrees, cloudy</weather>\n<wind>12 mph, Out to LF</wind>\n<weather>7:09 PM</weather>\n<time>3:36 (1:35 delay)</time>\n<attendance>37,117</attendance>\n<wind>Fenway Park</wind>\n<wind>July 1, 2016</wind></body></html>
+
+In [23]: wptext = soup.find_all('wild_pitches')
+
+In [24]: wptext
+Out[24]: [<wild_pitches>Wright, S.</wild_pitches>]
+
+In [25]: gs = wb5m4.DateGames('2013_04_14')
+
+In [26]: gs
+Out[26]: 
+[u'2013_04_14_atlmlb_wasmlb_1',
+ u'2013_04_14_balmlb_nyamlb_1',
+ u'2013_04_14_chamlb_clemlb_1',
+ u'2013_04_14_cinmlb_pitmlb_1',
+ u'2013_04_14_colmlb_sdnmlb_1',
+ u'2013_04_14_detmlb_oakmlb_1',
+ u'2013_04_14_houmlb_anamlb_1',
+ u'2013_04_14_lanmlb_arimlb_1',
+ u'2013_04_14_milmlb_slnmlb_1',
+ u'2013_04_14_nynmlb_minmlb_1',
+ u'2013_04_14_phimlb_miamlb_1',
+ u'2013_04_14_sfnmlb_chnmlb_1',
+ u'2013_04_14_tbamlb_bosmlb_1',
+ u'2013_04_14_texmlb_seamlb_1',
+ u'2013_04_14_tormlb_kcamlb_1']
+
+In [27]: jbox = wb5m4.GetGameBoxScoreJson(gs[11])
+
+In [28]: ginfo = jbox['data']['boxscore']['game_info']
+
+In [29]: ginfo
+Out[29]: u'\n      <relief_no_out>Lopez, J pitched to 1 batter in the 9th.</relief_no_out><br/><br/>\n      <game_score>Lincecum 42, Jackson, E 45.</game_score><br/>\n      <wild_pitches>Jackson, E 2, Bowden 3.</wild_pitches><br/>\n      <balks>Camp.</balks><br/>\n      <intentional_walks>Navarro, D (by Affeldt).</intentional_walks><br/>\n      <hit_by_pitch>Crawford, B (by Jackson, E).</hit_by_pitch><br/>\n      <pitches_to_strikes>Lincecum 78-51, Gaudin 33-22, Affeldt 16-4, Casilla 6-4, Lopez, J 10-6, Kontos 10-6, Romo 9-8, Jackson, E 112-63, Bowden 11-6, Rondon, H 21-14, Marmol 10-6, Camp 39-24, Dolis 2-2.</pitches_to_strikes><br/>\n      <groundouts_to_flyouts>Lincecum 6-1, Gaudin 4-0, Affeldt 1-0, Casilla 1-1, Lopez, J 0-0, Kontos 1-0, Romo 1-0, Jackson, E 5-2, Bowden 1-0, Rondon, H 1-1, Marmol 2-1, Camp 2-0, Dolis 0-1.</groundouts_to_flyouts><br/>\n      <batters_faced>Lincecum 21, Gaudin 8, Affeldt 5, Casilla 2, Lopez, J 1, Kontos 2, Romo 4, Jackson, E 26, Bowden 3, Rondon, H 5, Marmol 3, Camp 10, Dolis 1.</batters_faced><br/>\n      <inherited_runners_scored>Casilla 3-1, Kontos 1-0, Bowden 2-2, Dolis 1-0.</inherited_runners_scored><br/>\n      <umpires>\n         <umpire id="427362" position="HP" name="Jeff Nelson"></umpire>\n         <umpire id="427095" position="1B" name="Kerwin Danley"></umpire>\n         <umpire id="427013" position="2B" name="Lance Barksdale"></umpire>\n         <umpire id="483569" position="3B" name="Vic Carapazza"></umpire>\n      </umpires>\n      <weather>42 degrees, partly cloudy</weather>\n      <wind>11 mph, Out to LF</wind>\n      <time>4:00</time>\n      <attendance>33,326</attendance>\n      <wind>Wrigley Field</wind>\n      <wind>April 14, 2013</wind>'
+
+In [30]: soup = BeautifulSoup(ginfo)
+
+In [31]: wptext = soup.find_all('wild_pitches')
+
+In [32]: wptext
+Out[32]: [<wild_pitches>Jackson, E 2, Bowden 3.</wild_pitches>]
+
+In [33]: class(wptext)
+  File "<ipython-input-33-aedf8a04e3e5>", line 1
+    class(wptext)
+         ^
+SyntaxError: invalid syntax
+
+
+In [34]: type(wptext)
+Out[34]: bs4.element.ResultSet
+
+In [35]: type(wptext[0])
+Out[35]: bs4.element.Tag
+
+In [36]: type(wptext[1])
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-36-e5315061fa46> in <module>()
+----> 1 type(wptext[1])
+
+IndexError: list index out of range
+
+In [37]: wptext[0]
+Out[37]: <wild_pitches>Jackson, E 2, Bowden 3.</wild_pitches>
+
+In [38]: methods(wptext[0])
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-38-012ce87fc9c5> in <module>()
+----> 1 methods(wptext[0])
+
+NameError: name 'methods' is not defined
+
+In [39]: functions(wptext[0])
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-39-eeeef14ff519> in <module>()
+----> 1 functions(wptext[0])
+
+NameError: name 'functions' is not defined
+
+In [40]: wptext[0].functions
+
+In [41]: wptext[0].text
+Out[41]: u'Jackson, E 2, Bowden 3.'
+
+In [42]: strs = wptext[0].text.split(',')
+
+In [43]: strs
+Out[43]: [u'Jackson', u' E 2', u' Bowden 3.']
+
+In [44]: strs2 = strs.deepcopy();
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-45-ef903bd8a7fb> in <module>()
+----> 1 strs2 = strs.deepcopy();
+
+AttributeError: 'list' object has no attribute 'deepcopy'
+
+In [46]: strs2 = copy.deepcopy(strs)
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-46-9b72acfbfe65> in <module>()
+----> 1 strs2 = copy.deepcopy(strs)
+
+NameError: name 'copy' is not defined
+
+In [47]: import copy
+
+In [48]: strs2 = copy.deepcopy(strs)
+
+In [49]: strs2
+Out[49]: [u'Jackson', u' E 2', u' Bowden 3.']
+
+In [50]: import re
+
+In [51]: p = re.compile('\s*[A-Z]\s*\d')
+
+In [52]: m = p.match(strs2[1])
+
+In [53]: m
+Out[53]: <_sre.SRE_Match at 0x7f3bebbc9ed0>
+
+In [54]: m.group()
+Out[54]: u' E 2'
+
+In [55]: m.start()
+Out[55]: 0
+
+In [56]: m.end()
+Out[56]: 4
+
+In [57]: m2 = p.match(strs2[2])
+
+In [58]: m2
+
+In [59]: m0 = p.match(strs2[1])
+
+In [60]: m0
+Out[60]: <_sre.SRE_Match at 0x7f3bebb072a0>
+
+In [61]: m0 = p.match(strs2[0])
+
+In [62]: m0
+
+In [63]: m
+Out[63]: <_sre.SRE_Match at 0x7f3bebbc9ed0>
+
+In [64]: m.group()[5]
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-64-0e50de9c318b> in <module>()
+----> 1 m.group()[5]
+
+IndexError: string index out of range
+
+In [65]: m.group()[4]
+---------------------------------------------------------------------------
+IndexError                                Traceback (most recent call last)
+<ipython-input-65-e2b233ea6e9d> in <module>()
+----> 1 m.group()[4]
+
+IndexError: string index out of range
+
+In [66]: txt = m_group()
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-66-be8770d36e32> in <module>()
+----> 1 txt = m_group()
+
+NameError: name 'm_group' is not defined
+
+In [67]: txt = m.group()
+
+In [68]: len(txt)
+Out[68]: 4
+
+In [69]: txt[3]
+Out[69]: u'2'
+
+In [70]: txt
+Out[70]: u' E 2'
+
+In [71]: txt[0:2]
+Out[71]: u' E'
+
+In [72]: txt[2]
+Out[72]: u' '
+
+In [73]: txt[3]
+Out[73]: u'2'
+
+In [74]: text[0:3]
+---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+<ipython-input-74-e656e4b1c63c> in <module>()
+----> 1 text[0:3]
+
+NameError: name 'text' is not defined
+
+In [75]: txt[0:3]
+Out[75]: u' E '
+
+In [76]: 
