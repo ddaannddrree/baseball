@@ -9,6 +9,7 @@ from datetime import date
 from datetime import datetime
 import string
 import json
+import traceback
 
 def SetGd2Url(gameid, file):
     year, month, day = gameid[0:4], gameid[5:7], gameid[8:10] #extract date info from the gameid string
@@ -43,13 +44,18 @@ def GetGameEvents(gameid):
 def GetGameBoxScoreJson(gameid):
     """Takes MLB gameid string, returns an elementtree object containing the box score"""
     fullURL = SetGd2Url(gameid, 'boxscore.json')
+    #    print fullURL
+    #    print len(fullURL)
     try:
         page = urllib2.urlopen(fullURL)
         data = page.read()
         jdata = json.loads(data)
         return jdata
     except:
+        #tb = traceback.format_exc()
+        #print tb
         print "Couldn't retrieve box score"
+
         return None
 
 def DateGames(today = "today"):
