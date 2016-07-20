@@ -10,4 +10,4 @@ codehome = "/home/eddie7/code/"
 wb5m3.DoTheDay()
 
 # Now cp stuff to my web page
-os.system('/usr/bin/sshpass -p wh4tTh3B4n4n4! scp -o User=dandre -o StrictHostKeyChecking=no ' + codehome + '/wb5m3/* shinteki.com:public_html/davidandre/wb/')
+os.system('/usr/bin/sshpass -p XXXXXX scp -o User=dandre -o StrictHostKeyChecking=no ' + codehome + '/wb5m3/* shinteki.com:public_html/davidandre/wb/')
