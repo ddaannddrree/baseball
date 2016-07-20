@@ -58,6 +58,16 @@ def GetGameBoxScoreJson(gameid):
 
         return None
 
+def GetGameEvents(gameid):
+   """Takes MLB gameid string, returns an elementtree object containing all game events"""
+   year, month, day = gameid[0:4], gameid[5:7], gameid[8:10] #extract date info from the gameid string
+   baseURL = 'http://gd2.mlb.com/components/game/mlb/year_' #set URL beginning
+   fullURL = baseURL + year + '/month_' + month + '/day_' + day + '/gid_' + gameid + '/game_events.xml' #construct full URL for the game event XML file
+   try:
+      return ET.parse(urllib2.urlopen(fullURL)) # Tries to return the parsed game element from the XML file if the URL can be opened. If it can't 
+   except:                                      # (this only is the case for some extra 2012 Marlins gameids as far as I know), returns none
+      return None                               #
+    
 def DateGames(today = "today"):
     """Takes a date string yyyy-mm-dd, returns list of gameids corresponding to games on that date"""
     if today == "today":

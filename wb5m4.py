@@ -20,15 +20,21 @@ from wbhelpers import *
 import os.path
 
 codehome = "/home/eddie7/code/"
+codehome = "/Users/dandre/Code/wb/baseball/"
 #codehome = "/Users/martin/Baseball/WhiskeyBall/Code/"
 monthfolder = "wb5m4/"
+
+def getBattersOfWildPitches(ge):
+    actions = ge.findall(".//action[@event='Wild Pitch']")
+    results = [a.attrib['player'] for a in actions]
+    return results
 
 def getVictoryPoints(ts):
    #return a list of dictonaries with the season-point scores
    #PA, BB%-K%, wOBA, wSB
    #IP, K%-BB%, FIP, LOB%
 
-   cats = makeScoringNames(10)
+   cats = makeScoringNames()
    fnames_for_scoring = ['team']
    fnames_for_scoring.extend(cats)
    fnames_for_scoring.append('total')   
@@ -61,41 +67,80 @@ def pythag(r,ra):
    else:
       return 1/(1+(float(ra)/float(r))**2)
 
-def makeScoringNames(N):
-   zinlist = ['inn'+str(i+1) for i in range(N)]
-   zinlist[-1] = 'innX'
-   return zinlist
+def makeScoringNames():
+    return(['total_bases','runs_scored','strikeouts','wsbsf','sb','total_bases_allowed','runs_against','strikeouts_po','whbpwp','ips'])
+
+def getWP(g,ge):
+    home_team_wp = 0
+    away_team_wp = 0
+    bats = g['data']['boxscore']['batting']
+    bh = [b for b in bats if b['team_flag']=='home']
+    ba = [b for b in bats if b['team_flag']=='away']
+    hbats = bh[0]['batter']
+    abats =ba[0]['batter']
+    hbat_ids = [h['id'] for h in hbats]
+    abat_ids = [h['id'] for h in abats]
+    
+    #    actions = ge.findall(".//action[@event='Wild Pitch']")
+    
+    acs = getBattersOfWildPitches(ge)
+    
+    home_team = g['data']['boxscore']['home_team_code']
+    away_team = g['data']['boxscore']['away_team_code']
+    for bwp in acs:
+        if (int(bwp) in [int(a) for a in abat_ids]):
+            home_team_wp +=1
+        if (int(bwp) in [int(a) for a in hbat_ids]):
+            away_team_wp +=1
+    return home_team_wp, away_team_wp
+
+def scoreThree(d):
+    vals = d.values()
+    vals.sort()
+    return min(vals[2]-vals[1],vals[1]-vals[0])
 
 def getFilledTeams(date1,date2):
-   ts = getTeams()
-   (ress) = CompileRangeGames(date1,date2) 
-   labels = ['inning_runs','inning_runs_against']
-   for t in ts:
-      #print 'doing', t['team_name']
+    ts = getTeams()
+    (ress) = CompileRangeGames(date1,date2) 
+    for t in ts:
+        #print 'doing', t['team_name']
         
-      zlist = range(0,10)
-      zinlist = makeScoringNames(len(zlist))
+        mysum=lambda team,label,llist:sum([int(x[label]) for x in llist if x['team'] == team])
 
-      mysum=lambda team,label,idx,llist:sum([int(x[label][idx]) for x in llist if x['team'] == team])
-
-      stats = {}
-
-      #need to do the teams separately!!!
-      # get player stats  
-      i=0
-      t['inning_recs'] = {}
-
-      for tm in t['team_teams']:
-         t['inning_recs'][tm] = {}
-         myir = t['inning_recs'][tm]
-         for lbl in labels:
-            myir[lbl] = [mysum(tm,lbl,i,ress) for i in zlist]
-         myir['pythag'] = [pythag(myir['inning_runs'][i],myir['inning_runs_against'][i]) for i in zlist]
-      t['inning_recs']['joint'] = [t['inning_recs'][t['team_teams'][0]]['pythag'][i] + t['inning_recs'][t['team_teams'][1]]['pythag'][i] for i in zlist]
-      for i in range(10):
-         t[zinlist[i]] = t['inning_recs']['joint'][i]
-
-   return ts,ress
+        t['stats'] = {}
+        t['stats']['total_bases'] = {}
+        t['stats']['runs_scored'] = {}
+        t['stats']['strikeouts'] = {}
+        t['stats']['wsbsf'] = {}
+        t['stats']['sb'] = {}
+        for ht in t['hitting_team_teams']:
+            t['stats']['total_bases'][ht] = mysum(ht,'total_bases',ress)
+            t['stats']['runs_scored'][ht] = mysum(ht,'runs_scored',ress)
+            t['stats']['strikeouts'][ht] = mysum(ht,'h_so',ress)
+            t['stats']['wsbsf'][ht] = mysum(ht,'h_bb',ress) + mysum(ht,'sac',ress) + mysum(ht,'sf',ress)
+            t['stats']['sb'][ht] = mysum(ht,'sb',ress)
+        t['stats']['total_bases_allowed'] = {}
+        t['stats']['runs_against'] = {}
+        t['stats']['strikeouts_po'] = {}
+        t['stats']['whbpwp'] = {}
+        t['stats']['ips'] = {}
+        for pt in t['pitching_team_teams']:
+            t['stats']['total_bases_allowed'][pt] = mysum(pt,'total_bases_allowed',ress)
+            t['stats']['runs_against'][pt] = mysum(pt,'runs_against',ress)
+            t['stats']['strikeouts_po'][pt] = mysum(pt,'p_so',ress)
+            t['stats']['whbpwp'][pt] = mysum(pt,'hbp',ress) + mysum(pt,'p_bb',ress) + mysum(pt,'wild_pitches',ress)
+            t['stats']['ips'][pt] = mysum(pt,'ips',ress)
+        t['total_bases'] = scoreThree(t['stats']['total_bases'])
+        t['runs_scored'] = scoreThree(t['stats']['runs_scored'])
+        t['strikeouts'] = scoreThree(t['stats']['strikeouts'])
+        t['wsbsf'] = scoreThree(t['stats']['wsbsf'])
+        t['sb'] = scoreThree(t['stats']['sb'])
+        t['total_bases_allowed'] = scoreThree(t['stats']['total_bases_allowed'])
+        t['runs_against'] = scoreThree(t['stats']['runs_against'])
+        t['strikeouts_po'] = scoreThree(t['stats']['strikeouts_po'])
+        t['whbpwp'] = scoreThree(t['stats']['whbpwp'])
+        t['ips'] = scoreThree(t['stats']['ips'])
+    return ts,ress
 
 def printTeamTeamInnings(ts,tm):
    print ts['team'] + ',' + tm + ',runs, ' + str(ts['inning_recs'][tm]['inning_runs'])
@@ -110,6 +155,45 @@ def printAllTeams(ts):
    for t in ts:
       printTeamInnings(t)
 
+def printStatsForTeams(ts,fn):
+    ff = open(codehome + monthfolder + fn,'wb')
+    for t in ts:
+        ff.write('Hitting Stats for: ' + t['team_name'] + '<BR>')
+        ff.write('<table><tr>')
+        ff.write('<th>Category</th>')
+        cols = t['hitting_team_teams']
+        for c in cols:
+            ff.write('<th>%s</th>'%(c))
+        ff.write('\n</tr>')
+        #now write the data
+        hitting_stats = ['total_bases','strikeouts','wsbsf','runs_scored','sb']
+        for r in hitting_stats:
+            ff.write('<tr><td>'+r+'</td>')
+            for c in cols:
+                ff.write('<td>%s</td>'%(t['stats'][r][c]))
+            ff.write('</tr>\n')
+        ff.write('</table>')
+        ff.flush()
+
+        ff.write('Pitching Stats for: ' + t['team_name'] + '<BR>')
+        ff.write('<table><tr>')
+        ff.write('<th>Category</th>')
+        cols = t['pitching_team_teams']
+        for c in cols:
+            ff.write('<th>%s</th>'%(c))
+        ff.write('\n</tr>')
+        #now write the data
+        pitching_stats = ['total_bases_allowed','strikeouts_po','whbpwp','runs_against','ips']
+        for r in pitching_stats:
+            ff.write('<tr><td>'+r+'</td>')
+            for c in cols:
+                ff.write('<td>%s</td>'%(t['stats'][r][c]))
+            ff.write('</tr>\n')
+        ff.write('</table>')
+        ff.flush()
+    ff.close()
+        
+        
 def printFilesForTeams(ts,press,bress):
    for t in ts:
       bff = open(codehome + monthfolder + t['team_name'].replace(" ","") + '_batters.csv','wb')
@@ -153,19 +237,20 @@ def OutputTablesToFile(filename,ts,ress):
 
    ii = 0
    for svi in svps:
-      m3s = scoreSingle([x['total'] for x in svps],ii)      
-      svi['through_three'] = svi['mtotal'] + m3s
+      m4s = scoreSingle([x['total'] for x in svps],ii)      
+      svi['through_four'] = svi['mtotal'] + m4s
       svi['m1'] = svi['mscores'][0]
       svi['m2'] = svi['mscores'][1]
-      svi['m3'] = m3s
+      svi['m3'] = svi['mscores'][1]
+      svi['m4'] = m4s
       ii = ii+1
    ff = open(filename,'wb')
    ff.write('<BR><BR>Stats<BR><tt>')
-   cats = makeScoringNames(10)
+   cats = makeScoringNames()
    plist = ['team']
    plist.extend(cats)
-   csts = CleanStats(sts)
-   printDictList(ff,csts,plist) 
+   #csts = CleanStats(sts)
+   printDictList(ff,sts,plist) 
    ff.flush()
    ff.write('<BR><BR>Points<BR>')
    plist.append('total')
@@ -173,10 +258,10 @@ def OutputTablesToFile(filename,ts,ress):
 
    ff.write('<BR><BR>Season scores As of Today:<BR>')
 
-   ssvps = sorted(svps,key=lambda k: k['through_three'],reverse=True)
-   printDictList(ff,ssvps,['team_name','m1','m2','m3','through_three'])
+   ssvps = sorted(svps,key=lambda k: k['through_four'],reverse=True)
+   printDictList(ff,ssvps,['team_name','m1','m2','m3','m4','through_four'])
    ff.write('<BR><BR>')
-   #ff.write("<a href='all.csv'> all.csv </a><BR><BR>")
+   ff.write("For detailed stats <a href='all.html'> all.html </a><BR><BR>")
    
    # provide links to all teams' batter and pitcher stat files
    #   ff.write("<a href='TheRube_pitchers.csv'> Rube pitchers </a><BR>")
@@ -186,7 +271,7 @@ def OutputTablesToFile(filename,ts,ress):
    ff.write(str(datetime.now()))
 
    ff.close()
-   #printFilesForTeams(ts,press,bress)
+   printStatsForTeams(ts,'all.html')
    
    #ff = open(codehome + monthfolder + 'all.csv','wb')
    #printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
@@ -231,27 +316,90 @@ def getInningRuns(teamloc, dd):
       retvec = [0]*10
    return retvec
 
-def ExtractTeamRecords(dd):
-   """Takes json dictionary of all boxscore, returns relevant stuff"""
-   tgh = {}
-   tga = {}
-   res = None
-   try:
-      tgh['team'] = dd['data']['boxscore']['home_team_code']
-      tga['team'] = dd['data']['boxscore']['away_team_code']
+#Batting:
+#total bases, runs scored, strikeouts, walks + sacrifice bunts + sacrifice flies, stolen bases
 
-      tgh['game_id'] = dd['data']['boxscore']['game_id']
-      tga['game_id'] = dd['data']['boxscore']['game_id']
+#Pitching:
+#total bases allowed, runs allowed, strikeouts, walks + hit batsmen + wild pitches,
+#innings pitched by starters
 
-      tgh['inning_runs'] = getInningRuns('home',dd)
-      tgh['inning_runs_against'] = getInningRuns('away',dd)
-      tga['inning_runs'] = getInningRuns('away',dd)
-      tga['inning_runs_against'] = getInningRuns('home',dd)
-      res = [tga,tgh]
-   except:
-      traceback.print_exc()
-      print 'no data yet'
-   return res
+def ExtractTeamRecords(dd,ge):
+    """Takes json dictionary of all boxscore, returns relevant stuff"""
+    tgh = {}
+    tga = {}
+    res = None
+    try:
+        tgh['team'] = dd['data']['boxscore']['home_team_code']
+        tga['team'] = dd['data']['boxscore']['away_team_code']
+        
+        hwp,awp = getWP(dd,ge)
+        tgh['wild_pitches'] = hwp
+        tga['wild_pitches'] = awp
+        
+        tgh['runs_scored'] = dd['data']['boxscore']['linescore']['home_team_runs']      
+        tga['runs_against'] = tgh['runs_scored']
+        
+        tga['runs_scored'] = dd['data']['boxscore']['linescore']['away_team_runs']      
+        tgh['runs_against'] = tga['runs_scored']
+        
+        tgh['game_id'] = dd['data']['boxscore']['game_id']
+        tga['game_id'] = dd['data']['boxscore']['game_id']
+        
+        bats = dd['data']['boxscore']['batting']
+        bh = [b for b in bats if b['team_flag']=='home']
+        ba = [b for b in bats if b['team_flag']=='away']
+        hbats = bh[0]['batter']
+        abats =ba[0]['batter']
+        
+        pits = dd['data']['boxscore']['pitching']
+        ph = [p for p in pits if p['team_flag'] =='home']
+        pa = [p for p in pits if p['team_flag'] =='away']
+        if type(ph[0]['pitcher']) is dict:
+            hpits = [ph[0]['pitcher']]
+        else:
+            hpits = [p for p in ph[0]['pitcher']]
+        if type(pa[0]['pitcher']) is dict:
+            apits = [pa[0]['pitcher']]
+        else:
+            apits = [p for p in pa[0]['pitcher']]
+
+        tgh['total_bases'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in hbats])
+        tga['total_bases'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in abats])
+        tga['total_bases_allowed'] = tgh['total_bases']
+        tgh['total_bases_allowed'] = tga['total_bases']
+
+        tgh['hbp'] = sum([int(h['hbp']) for h in abats])
+        tga['hbp'] = sum([int(h['hbp']) for h in hbats])
+        
+        tgh['p_so'] = sum([int(p['so']) for p in hpits])
+        tga['p_so'] = sum([int(p['so']) for p in apits])
+        tgh['h_so'] = tga['p_so']
+        tga['h_so'] = tgh['p_so']
+        
+        tgh['p_bb'] = sum([int(p['bb']) for p in hpits])
+        tga['p_bb'] = sum([int(p['bb']) for p in apits])
+        tgh['h_bb'] = tga['p_so']
+        tga['h_bb'] = tgh['p_so']
+        
+        tgh['sb'] = sum([int(h['sb']) for h in hbats])
+        tga['sb'] = sum([int(h['sb']) for h in abats])
+        
+        tgh['sf'] = sum([int(h['sf']) for h in hbats])
+        tga['sf'] = sum([int(h['sf']) for h in abats])
+        
+        tgh['sac'] = sum([int(h['sac']) for h in hbats])
+        tga['sac'] = sum([int(h['sac']) for h in abats])
+        
+        tgh['ips'] = int(hpits[0]['out'])
+        tga['ips'] = int(apits[0]['out'])
+        
+        #here -- try this out. 
+      
+        res = [tga,tgh]
+    except:
+        traceback.print_exc()
+        print 'no data yet'
+    return res
 
 def parseWildPitches(tag):
    strs = tag.text.split(',')
@@ -303,9 +451,10 @@ def CompileDayGames(curdate):
       sys.stdout.flush()
       jsonbox = GetGameBoxScoreJson(g)
       if not jsonbox is None:
-         trs = ExtractTeamRecords(jsonbox)
-         if not trs is None:
-            team_games.extend(trs)
+        ge = GetGameEvents(g)          
+        trs = ExtractTeamRecords(jsonbox,ge)
+        if not trs is None:
+          team_games.extend(trs)
             
    return (team_games)
 
@@ -329,9 +478,9 @@ def CompileRangeGames(date1,date2):
 def DoTheDay():
     today = datetime.now()
     today = today.date()
-    start_date = date(2016,6,7)
-    end_date = date(2016,7,10)
+    start_date = date(2016,7,14)
+    end_date = date(2016,8,9)
     #end_date = date(2016,5,10)
     end_date = min(end_date,today)
     ts,ress = getFilledTeams(d2s(start_date),d2s(end_date))
-    OutputTablesToFile(codehome + monthfolder + 'stats_wb5m3.html',ts,ress)
+    OutputTablesToFile(codehome + monthfolder + 'stats_wb5m4.html',ts,ress)

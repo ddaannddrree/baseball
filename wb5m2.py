@@ -48,15 +48,14 @@ def GameInRange(gid,start,end):
 
 def getFilledTeams(date1,date2):
     ts = getTeams()
-    (press,bress) = CompileRangeGames(date1,date2) 
+    (ress) = CompileRangeGames(date1,date2) 
     for t in ts:
         #print 'doing', t['team_name']
         
-        pits = [p['id'] for p in t['pitchers']]
-        bats = [b['id'] for b in t['batters']]
+        pteams = t['hitting_team_names'] 
+        bteams = t['pitching_team_names']
                 
-        mysum=lambda players,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in players])
-        myrepsum=lambda id,label,llist,start,end:sum([int(x[label]) for x in llist if id == int(x['id']) and GameInRange(x['gid'],start,end)])
+        mysum=lambda teams,label,llist:sum([int(x[label]) for x in llist if int(x['id']) in teams])
         hitlabels = [x for x in bress[0].keys() if x not in ['id','gid']]
         pitlabels = [x for x in press[0].keys() if x not in ['id','gid']]
         hitstats = {}
