@@ -20,13 +20,31 @@ from wbhelpers import *
 import os.path
 
 codehome = "/home/eddie7/code/"
-codehome = "/Users/dandre/Code/wb/baseball/"
+#codehome = "/Users/dandre/Code/wb/baseball/"
 #codehome = "/Users/martin/Baseball/WhiskeyBall/Code/"
 monthfolder = "wb5m4/"
+
+
+def getPitcherStringsOfWildPitches(dd):
+    soup = BeautifulSoup(dd['data']['boxscore']['game_info'])
+    wpstr = soup.find_all('wild_pitches')
+    if len(wpstr) > 0:
+        return wpstr[0].text.split(';')
+    else:
+        return []                
 
 def getBattersOfWildPitches(ge):
     actions = ge.findall(".//action[@event='Wild Pitch']")
     results = [a.attrib['player'] for a in actions]
+
+    ab1 = ge.findall(".//atbat[@event='Wild Pitch']")
+    ab2 = ge.findall(".//atbat[@event2='Wild Pitch']")
+
+    wpb1 = [b.attrib['batter'] for b in ab1]
+    wpb2 = [b.attrib['batter'] for b in ab2]
+    results.extend(wpb1)
+    results.extend(wpb2)
+    
     return results
 
 def getVictoryPoints(ts):
@@ -68,7 +86,7 @@ def pythag(r,ra):
       return 1/(1+(float(ra)/float(r))**2)
 
 def makeScoringNames():
-    return(['total_bases','runs_scored','strikeouts','wsbsf','sb','total_bases_allowed','runs_against','strikeouts_po','whbpwp','ips'])
+    return(['tb','r_s','k','wsbsf','sb','tba','r_a','k_po','whbpwp','ips'])
 
 def getWP(g,ge):
     home_team_wp = 0
@@ -101,43 +119,43 @@ def scoreThree(d):
 
 def getFilledTeams(date1,date2):
     ts = getTeams()
-    (ress) = CompileRangeGames(date1,date2) 
+    (ress) = CompileRangeGames(date1,date2)
     for t in ts:
         #print 'doing', t['team_name']
         
         mysum=lambda team,label,llist:sum([int(x[label]) for x in llist if x['team'] == team])
 
         t['stats'] = {}
-        t['stats']['total_bases'] = {}
-        t['stats']['runs_scored'] = {}
-        t['stats']['strikeouts'] = {}
+        t['stats']['tb'] = {}
+        t['stats']['r_s'] = {}
+        t['stats']['k'] = {}
         t['stats']['wsbsf'] = {}
         t['stats']['sb'] = {}
         for ht in t['hitting_team_teams']:
-            t['stats']['total_bases'][ht] = mysum(ht,'total_bases',ress)
-            t['stats']['runs_scored'][ht] = mysum(ht,'runs_scored',ress)
-            t['stats']['strikeouts'][ht] = mysum(ht,'h_so',ress)
+            t['stats']['tb'][ht] = mysum(ht,'tb',ress)
+            t['stats']['r_s'][ht] = mysum(ht,'r_s',ress)
+            t['stats']['k'][ht] = mysum(ht,'h_so',ress)
             t['stats']['wsbsf'][ht] = mysum(ht,'h_bb',ress) + mysum(ht,'sac',ress) + mysum(ht,'sf',ress)
             t['stats']['sb'][ht] = mysum(ht,'sb',ress)
-        t['stats']['total_bases_allowed'] = {}
-        t['stats']['runs_against'] = {}
-        t['stats']['strikeouts_po'] = {}
+        t['stats']['tba'] = {}
+        t['stats']['r_a'] = {}
+        t['stats']['k_po'] = {}
         t['stats']['whbpwp'] = {}
         t['stats']['ips'] = {}
         for pt in t['pitching_team_teams']:
-            t['stats']['total_bases_allowed'][pt] = mysum(pt,'total_bases_allowed',ress)
-            t['stats']['runs_against'][pt] = mysum(pt,'runs_against',ress)
-            t['stats']['strikeouts_po'][pt] = mysum(pt,'p_so',ress)
+            t['stats']['tba'][pt] = mysum(pt,'tba',ress)
+            t['stats']['r_a'][pt] = mysum(pt,'r_a',ress)
+            t['stats']['k_po'][pt] = mysum(pt,'p_so',ress)
             t['stats']['whbpwp'][pt] = mysum(pt,'hbp',ress) + mysum(pt,'p_bb',ress) + mysum(pt,'wild_pitches',ress)
             t['stats']['ips'][pt] = mysum(pt,'ips',ress)
-        t['total_bases'] = scoreThree(t['stats']['total_bases'])
-        t['runs_scored'] = scoreThree(t['stats']['runs_scored'])
-        t['strikeouts'] = scoreThree(t['stats']['strikeouts'])
+        t['tb'] = scoreThree(t['stats']['tb'])
+        t['r_s'] = scoreThree(t['stats']['r_s'])
+        t['k'] = scoreThree(t['stats']['k'])
         t['wsbsf'] = scoreThree(t['stats']['wsbsf'])
         t['sb'] = scoreThree(t['stats']['sb'])
-        t['total_bases_allowed'] = scoreThree(t['stats']['total_bases_allowed'])
-        t['runs_against'] = scoreThree(t['stats']['runs_against'])
-        t['strikeouts_po'] = scoreThree(t['stats']['strikeouts_po'])
+        t['tba'] = scoreThree(t['stats']['tba'])
+        t['r_a'] = scoreThree(t['stats']['r_a'])
+        t['k_po'] = scoreThree(t['stats']['k_po'])
         t['whbpwp'] = scoreThree(t['stats']['whbpwp'])
         t['ips'] = scoreThree(t['stats']['ips'])
     return ts,ress
@@ -166,7 +184,7 @@ def printStatsForTeams(ts,fn):
             ff.write('<th>%s</th>'%(c))
         ff.write('\n</tr>')
         #now write the data
-        hitting_stats = ['total_bases','strikeouts','wsbsf','runs_scored','sb']
+        hitting_stats = ['tb','r_s','k','wsbsf','sb']
         for r in hitting_stats:
             ff.write('<tr><td>'+r+'</td>')
             for c in cols:
@@ -175,7 +193,7 @@ def printStatsForTeams(ts,fn):
         ff.write('</table>')
         ff.flush()
 
-        ff.write('Pitching Stats for: ' + t['team_name'] + '<BR>')
+        ff.write('<BR>Pitching Stats for: ' + t['team_name'] + '<BR>')
         ff.write('<table><tr>')
         ff.write('<th>Category</th>')
         cols = t['pitching_team_teams']
@@ -183,13 +201,13 @@ def printStatsForTeams(ts,fn):
             ff.write('<th>%s</th>'%(c))
         ff.write('\n</tr>')
         #now write the data
-        pitching_stats = ['total_bases_allowed','strikeouts_po','whbpwp','runs_against','ips']
+        pitching_stats = ['tba','r_a','k_po','whbpwp','ips']
         for r in pitching_stats:
             ff.write('<tr><td>'+r+'</td>')
             for c in cols:
                 ff.write('<td>%s</td>'%(t['stats'][r][c]))
             ff.write('</tr>\n')
-        ff.write('</table>')
+        ff.write('</table><BR><BR><BR>')
         ff.flush()
     ff.close()
         
@@ -208,8 +226,8 @@ def printFilesForTeams(ts,press,bress):
 def getTeams():
     team_names = ['Drumpfallacious','No-Talent Ass Clowns', 'Portlandia Misfits', 'The Rube', 'Paly Players', 'Dr. Watson', 'Buena Vista Bottoms', 'Damnedest of the Nice']
 
-    hitting_team_teams = [['nya','sfn','nyn'],['tex','lan','mil'],['col','cin','sln'],['mia','hou','pit'],['oak','chn','ari'],['bos','sdn','det'],['bal','ana','kca'],['pit','atl','tor']]
-    pitching_team_teams = [['was','ana','mia'],['min','lad','atl'],['sln','det','phi'],['cin','nya','oak'],['chn','kca','ari'],['bos','bal','tor'],['nyn','tba','pit'],['cle','col','sfn']]
+    hitting_team_teams = [['nya','sfn','nyn'],['tex','lan','mil'],['col','cin','sln'],['mia','hou','phi'],['oak','chn','ari'],['bos','sdn','det'],['bal','ana','kca'],['pit','atl','tor']]
+    pitching_team_teams = [['was','ana','mia'],['min','lan','atl'],['sln','det','phi'],['cin','nya','oak'],['chn','kca','ari'],['bos','bal','tor'],['nyn','tba','pit'],['cle','col','sfn']]
     
     mscores = [[7,7,2.5],[3.5,8,1],[3.5,4,5],[5,5,7],[1,1,6],[2,3,4],[6,6,8],[8,2,2.5]]
     mtotal =  [sum(x) for x in mscores]
@@ -241,7 +259,7 @@ def OutputTablesToFile(filename,ts,ress):
       svi['through_four'] = svi['mtotal'] + m4s
       svi['m1'] = svi['mscores'][0]
       svi['m2'] = svi['mscores'][1]
-      svi['m3'] = svi['mscores'][1]
+      svi['m3'] = svi['mscores'][2]
       svi['m4'] = m4s
       ii = ii+1
    ff = open(filename,'wb')
@@ -274,7 +292,7 @@ def OutputTablesToFile(filename,ts,ress):
    printStatsForTeams(ts,'all.html')
    
    #ff = open(codehome + monthfolder + 'all.csv','wb')
-   #printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','runs_against','qs','so','saves','holds','batting_team','pitching_team'])
+   #printDictListCSV(ff,ress,['team','game_id','runs_for','h','d','t','hr','tb','bb','sb','sac','sf','sacsf','r_a','qs','so','saves','holds','batting_team','pitching_team'])
    #printDictListCSV(ff,ress)
    #ff.close()
       
@@ -317,11 +335,32 @@ def getInningRuns(teamloc, dd):
    return retvec
 
 #Batting:
-#total bases, runs scored, strikeouts, walks + sacrifice bunts + sacrifice flies, stolen bases
+#total bases, runs scored, k, walks + sacrifice bunts + sacrifice flies, stolen bases
 
 #Pitching:
-#total bases allowed, runs allowed, strikeouts, walks + hit batsmen + wild pitches,
+#total bases allowed, runs allowed, k, walks + hit batsmen + wild pitches,
 #innings pitched by starters
+
+def getNumWP(astr):
+    if astr[-1] == '.':
+        astr = astr[0:-1]
+    num = re.match('[A-Za-z ,]*([0-9]+)$',astr)
+    if num is None:
+        return 1
+    else:
+        return int(num.group(1))
+        
+def findWP(wpstrs,name):
+    wp = 0
+    matches = [getNumWP(x) for x in wpstrs if name in x]
+    if len(matches) == 1:
+        wp = matches[0]
+    elif len(matches)==0:
+        wp = 0;
+    else:
+        print 'Error -- too many matches'
+        raise Exception('too may matches')
+    return wp
 
 def ExtractTeamRecords(dd,ge):
     """Takes json dictionary of all boxscore, returns relevant stuff"""
@@ -331,19 +370,6 @@ def ExtractTeamRecords(dd,ge):
     try:
         tgh['team'] = dd['data']['boxscore']['home_team_code']
         tga['team'] = dd['data']['boxscore']['away_team_code']
-        
-        hwp,awp = getWP(dd,ge)
-        tgh['wild_pitches'] = hwp
-        tga['wild_pitches'] = awp
-        
-        tgh['runs_scored'] = dd['data']['boxscore']['linescore']['home_team_runs']      
-        tga['runs_against'] = tgh['runs_scored']
-        
-        tga['runs_scored'] = dd['data']['boxscore']['linescore']['away_team_runs']      
-        tgh['runs_against'] = tga['runs_scored']
-        
-        tgh['game_id'] = dd['data']['boxscore']['game_id']
-        tga['game_id'] = dd['data']['boxscore']['game_id']
         
         bats = dd['data']['boxscore']['batting']
         bh = [b for b in bats if b['team_flag']=='home']
@@ -363,10 +389,39 @@ def ExtractTeamRecords(dd,ge):
         else:
             apits = [p for p in pa[0]['pitcher']]
 
-        tgh['total_bases'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in hbats])
-        tga['total_bases'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in abats])
-        tga['total_bases_allowed'] = tgh['total_bases']
-        tgh['total_bases_allowed'] = tga['total_bases']
+
+        hwp,awp = getWP(dd,ge)  # This is the old way
+
+        # new way
+        wpstrs = getPitcherStringsOfWildPitches(dd)
+        h_pnames = [p['name'] for p in hpits]
+        a_pnames = [p['name'] for p in apits]
+        
+        hwp2 = sum([findWP(wpstrs,n) for n in h_pnames])
+        awp2 = sum([findWP(wpstrs,n) for n in a_pnames])
+
+        if not (awp == awp2):
+            print 'New way:' + str(awp2) + ' not equal to old way:'+str(awp)+' for away team'
+        if not (hwp == hwp2):
+            print 'New way:' + str(hwp2) + ' not equal to old way:'+str(hwp)+' for home team'
+            
+        tgh['wild_pitches'] = hwp2
+        tga['wild_pitches'] = awp2
+        
+        tgh['r_s'] = dd['data']['boxscore']['linescore']['home_team_runs']      
+        tga['r_a'] = tgh['r_s']
+        
+        tga['r_s'] = dd['data']['boxscore']['linescore']['away_team_runs']      
+        tgh['r_a'] = tga['r_s']
+        
+        tgh['game_id'] = dd['data']['boxscore']['game_id']
+        tga['game_id'] = dd['data']['boxscore']['game_id']
+        
+
+        tgh['tb'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in hbats])
+        tga['tb'] = sum([int(h['h'])+int(h['d'])+int(h['t'])*2+int(h['hr'])*3 for h in abats])
+        tga['tba'] = tgh['tb']
+        tgh['tba'] = tga['tb']
 
         tgh['hbp'] = sum([int(h['hbp']) for h in abats])
         tga['hbp'] = sum([int(h['hbp']) for h in hbats])
@@ -378,8 +433,8 @@ def ExtractTeamRecords(dd,ge):
         
         tgh['p_bb'] = sum([int(p['bb']) for p in hpits])
         tga['p_bb'] = sum([int(p['bb']) for p in apits])
-        tgh['h_bb'] = tga['p_so']
-        tga['h_bb'] = tgh['p_so']
+        tgh['h_bb'] = tga['p_bb']
+        tga['h_bb'] = tgh['p_bb']
         
         tgh['sb'] = sum([int(h['sb']) for h in hbats])
         tga['sb'] = sum([int(h['sb']) for h in abats])
@@ -401,46 +456,6 @@ def ExtractTeamRecords(dd,ge):
         print 'no data yet'
     return res
 
-def parseWildPitches(tag):
-   strs = tag.text.split(',')
-   # so, first str IS a name, but might be a name/number pair
-   # if so, name doesn't have a first name, so record it.
-   # otherwise, look at next str to see if it's an initial or initial/number
-   # if so, merge em and record, otherwise record with 1 WP
-   # use a while loop?
-   # HERE
-   pitchers={};
-   i=0;
-   while i < len(strs):
-      name_re = re.compile('[A-Za-z]*')
-      name_nu_rem = re.compile('[A-Za-z]*\s*\d*')
-      init = re.compile('\s*[A-Z]')
-      init_num = re.compile('\s*[A-Z]\s*\d*')
-      m = name_re.match(strs[i])
-      if len(strs[i]) == m.end():
-         #single name, no letter
-         #must look at next name
-         name_pre = m.group()
-         nwp = 1
-         if i+1 < len(strs):
-            mi_n = init_num.match(strs[i+1])
-            if not(mi_n is None): #we have init num
-               pname = name_pre + strs[i+1][1]
-               nwp = int(strs[i+1][3:])
-               i +=1
-            else:
-               mi = init.match(strs[i+1])
-               if not(mi is None) and mi.end() == len(strs[i+1]): 
-                  pname = name_pre + strs[i+1][1]
-                  i +=1
-      else:
-         #must have number and no next name
-         m2 = name_nu_re.match(strs[i])
-         pname = strs[i][0:m.end()]
-         nwp = int(strs[i][m.end()+1:])
-      pitchers[pname] = nwp
-      i+=1
-   return pitchers
 
 def CompileDayGames(curdate):
    team_games = []
@@ -450,6 +465,7 @@ def CompileDayGames(curdate):
       print 'Doing game ' + g
       sys.stdout.flush()
       jsonbox = GetGameBoxScoreJson(g)
+
       if not jsonbox is None:
         ge = GetGameEvents(g)          
         trs = ExtractTeamRecords(jsonbox,ge)
